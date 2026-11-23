@@ -25,6 +25,10 @@ export interface CloudProxyRequest {
   orgId?: string | null;
 }
 
+/**
+ * Cloud 应用 API 的调用路径：默认 bearer 鉴权，并在有组织时带上 X-Org-Id。
+ * 这不是某次对话沙箱的请求；沙箱应直接访问该对话自己的 runtime URL。
+ */
 export async function callCloudProxy<TResponse = unknown>(
   req: CloudProxyRequest,
 ): Promise<TResponse> {

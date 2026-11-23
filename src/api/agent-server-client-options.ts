@@ -3,6 +3,12 @@ import { getAgentServerWorkingDir } from "./agent-server-config";
 import { getEffectiveLocalBackend } from "./backend-registry/active-store";
 import type { Backend } from "./backend-registry/types";
 
+/**
+ * 本地协议调用的客户端选项。默认的 host 与 apiKey 都来自当前有效的 local
+ * 后端；选中 Cloud 时没有有效 Local，调用会抛出 NoBackendAvailableError，
+ * 除非调用方显式传入某次对话的 runtime 地址。
+ */
+
 export interface AgentServerClientOverrides {
   conversationId?: string;
   host?: string;
@@ -42,6 +48,10 @@ function resolveHost(
   return normalizeHost(backend?.host ?? "");
 }
 
+/**
+ * 组装本地协议客户端选项。host 与 apiKey 取自有效 Local，
+ * 可被单次调用的 overrides 覆盖。
+ */
 export function getAgentServerClientOptions(
   overrides: AgentServerClientOverrides = {},
 ): AgentServerClientOptions {

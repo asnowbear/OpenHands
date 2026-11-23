@@ -189,9 +189,13 @@ function getConnectionTestFailedMessage(title: string, error: unknown): string {
   return detail ? `${title}\n${detail}` : title;
 }
 
+/**
+ * 表单里的连接测试。本地 Connect 探测 Agent Server；Cloud 走 OAuth，不做预检。
+ */
 async function testBackendConnection(
   backend: Pick<Backend, "host" | "apiKey" | "kind">,
 ): Promise<BackendConnectionTestMetadata> {
+  // 本地 Connect 探测 Agent Server；Cloud 用 OAuth 授权，这里的预检 GET 不适用。
   // Cloud backends authenticate via OAuth; preflight GET is not applicable.
   if (backend.kind !== "local") return { agentServerVersion: null };
   const agentServerVersion = await validateLocalBackend(backend, 5000);

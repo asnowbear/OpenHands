@@ -1,3 +1,7 @@
+/**
+ * Backend 是 Canvas 保存的一条连接记录（主机地址 + 凭证），不是远端进程本身。
+ * kind 为 local 时指向 Agent Server；kind 为 cloud 时指向 OpenHands Cloud 应用 API。
+ */
 export type BackendKind = "local" | "cloud";
 export type BackendAuthMode = "api-key" | "cookie";
 

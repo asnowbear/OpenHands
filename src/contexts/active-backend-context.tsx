@@ -39,6 +39,10 @@ interface ActiveBackendContextValue {
   removeBackend: (id: string) => void;
 }
 
+/**
+ * 后端注册表的唯一写入方：addBackend、setActive、updateBackend、removeBackend。
+ * 其余模块只读快照。新添加的后端会立刻成为当前项（BM-001）。
+ */
 const ActiveBackendContext =
   React.createContext<ActiveBackendContextValue | null>(null);
 
@@ -78,6 +82,7 @@ export function ActiveBackendProvider({
     });
   }, []);
 
+  // 四个写操作都在本 Provider 内：切换、新增、修改、删除。新增见下方 BM-001。
   const setActive = React.useCallback(
     (backendId: string, orgId?: string | null) => {
       const currentSnapshot = getSnapshot();
@@ -113,6 +118,7 @@ export function ActiveBackendProvider({
   );
 
   // @spec BM-001 — Auto-switch to newly connected backend
+  // 新后端写入注册表后立即成为当前项，避免仍停在上一条连接上。
   const addBackend = React.useCallback(
     (backend: BackendInput): Backend => {
       const previousActive = getSnapshot().active;

@@ -73,6 +73,9 @@ export function isCloudBackendLoggedOutHealthError(
 }
 
 /**
+ * 按种类探测连通性。local 走 Agent Server（settings 核对密钥，server_info
+ * 核对版本）；cloud 走 Cloud 应用的当前密钥或组织列表，用来判断是否已登录。
+ *
  * Probe a single backend for connectivity. The probe path differs by
  * backend kind:
  *

@@ -1,3 +1,9 @@
+/**
+ * 当前后端的内存快照。getActiveBackend 是用户选中的连接（可以是 Cloud）。
+ * getEffectiveLocalBackend 只在选中项本身是 local 时返回它；选中 Cloud 时
+ * 不得借用列表里的另一台 Local。启动时 URL 的 ?backend= 优先于已存选择，
+ * 用来把新标签钉在链接所属的后端上。选中项被删除后回退到健康的 Local。
+ */
 import { getBackendHealthEntry } from "./health-store";
 import {
   readStoredActiveBackend,
@@ -133,11 +139,18 @@ function notify(): void {
   listeners.forEach((listener) => listener());
 }
 
+/**
+ * 返回用户当前选中的后端（含 Cloud 与组织）。本地协议调用不要用它，
+ * 改用 {@link getEffectiveLocalBackend}，以免在选中 Cloud 时打到别的 Local。
+ */
 export function getActiveBackend(): ResolvedActiveBackend {
   return snapshot.active;
 }
 
 /**
+ * 仅当当前选中项本身是 local 时返回它。选中 Cloud 必须得到 null，
+ * 不能改用注册表里的另一台 Local。
+ *
  * Pick the backend to use for *local agent-server protocol* calls.
  *
  * Most of the GUI's services (settings reads/writes, conversation CRUD,
