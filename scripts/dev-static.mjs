@@ -47,6 +47,8 @@ import {
   buildAgentServerCommand,
   buildSafeDevConfig,
   buildAgentServerEnv,
+  conversationSandboxDefaultMessage,
+  probeDockerDaemonOnce,
   backendLogLevel,
   uvicornLogLevel,
   buildBackendLogEnv,
@@ -356,9 +358,13 @@ function startAgentServer(config) {
     ...buildAgentServerEnv(safeConfig, {
       vscodeBasePath: config.vscodeBasePath,
       verbose: config.verbose,
+      dockerAvailable: probeDockerDaemonOnce(),
     }),
     ...buildAgentServerAutomationEnv(config),
   };
+
+  const sandboxMessage = conversationSandboxDefaultMessage(agentServerEnv);
+  if (sandboxMessage) logService("agent-server", sandboxMessage, c.dim);
 
   spawnService(
     "agent-server",

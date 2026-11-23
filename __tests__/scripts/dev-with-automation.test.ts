@@ -931,6 +931,18 @@ describe("stack mode routing", () => {
     expect(env.VITE_AUTH_REQUIRED).toBe("true");
   });
 
+  it("keeps loopback when the sandbox default is only on the agent-server", async () => {
+    const config = await buildConfig({}, envWithIsolatedKeyPath());
+    const serverEnv = buildAgentServerEnv(
+      buildSafeDevConfig(process.cwd(), envWithIsolatedKeyPath()),
+      { env: {}, dockerAvailable: true },
+    );
+
+    expect(config.bindHost).toBe("127.0.0.1");
+    expect(serverEnv.OH_CONVERSATION_RUNTIME_SELECTABLE).toBe("1");
+    expect(buildViteFrontendEnv(config)).toHaveProperty("VITE_SESSION_API_KEY");
+  });
+
   it("makes the key-free ingress reachable to Docker conversations", async () => {
     const config = await buildConfig(
       {},

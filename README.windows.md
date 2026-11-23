@@ -46,4 +46,6 @@ The quickstart restricts the published port to host loopback before explicitly e
 
 For per-conversation containers, run Canvas inside a Linux distribution under WSL 2, with Docker Desktop's WSL integration enabled for that distribution. Install Node.js 24 or later and `uv` inside WSL, and confirm that `docker info` succeeds there.
 
-Run the [multiple-sandbox quickstart](./README.md#option-3-with-multiple-docker-sandboxes) in the WSL shell, using workspace paths inside that Linux environment. The native Windows host is not supported by this runtime, which uses POSIX user/group IDs.
+In that WSL shell, `agent-canvas` offers a Docker sandbox for new conversations when `docker info` succeeds. Host execution stays the default until you pick Docker on Home or in Settings → Runtime. `OH_CONVERSATION_RUNTIME_SELECTABLE=0` keeps the host-only server; `OH_CONVERSATION_RUNTIME=docker` runs every new conversation in a container and publishes the ingress off loopback. The native Windows host is not supported by this runtime, which uses POSIX user/group IDs.
+
+Run the [multiple-sandbox quickstart](./README.md#option-3-with-multiple-docker-sandboxes) in the WSL shell, using workspace paths inside that Linux environment.

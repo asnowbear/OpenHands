@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local mode offers a Docker sandbox</title>
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5a5a5a; --subtle:#8a8a82;
+    --bg:#fdfdfb; --card:#ffffff; --elevated:#f7f6f1;
+    --accent:#2b4eaa; --accent-soft:#e6ecfa;
+    --rule:#e2e2dc; --rule-strong:#bdbcb4;
+    --code-bg:#f3f1ec; --warn:#b25b0e; --ok:#2f7a3a; --crit:#a02020;
+    --change:#c45c12; --change-soft:#fff1e6;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans)}
+  body{line-height:1.6;font-size:16px}
+  .wrap{display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;max-width:1180px;margin:0 auto;padding:32px 28px 96px}
+  nav.toc{position:sticky;top:24px;align-self:start;font-size:13px}
+  nav.toc h2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  nav.toc ol{list-style:none;padding:0;margin:0;counter-reset:toc}
+  nav.toc li{counter-increment:toc;margin:4px 0}
+  nav.toc li::before{content:counter(toc) ". ";color:var(--muted)}
+  nav.toc a{color:var(--fg);text-decoration:none} nav.toc a:hover{color:var(--accent)}
+  header.title{border-bottom:1px solid var(--rule);padding-bottom:22px;margin-bottom:28px}
+  header.title .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  header.title h1{font-size:34px;margin:6px 0 4px;letter-spacing:-.01em}
+  header.title .sub{color:var(--muted);max-width:740px}
+  h2{font-size:22px;margin:44px 0 10px} h2 .num{color:var(--muted);font-weight:500;margin-right:8px}
+  h3{font-size:16px;margin:22px 0 8px}
+  code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+  pre{font-family:var(--mono);font-size:13px;background:var(--code-bg);padding:14px 16px;border-radius:6px;overflow-x:auto;border:1px solid var(--rule)}
+  pre code{background:transparent;padding:0}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;background:var(--code-bg)}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;margin:14px 0;border-radius:0 4px 4px 0;font-size:14.5px}
+  .callout.warn{border-color:var(--warn);background:#fbf1e6} .callout.note{border-color:var(--muted);background:#f3f1ec}
+  .fig{margin:18px 0 22px}
+  .fig svg{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--rule);border-radius:6px}
+  .fig figcaption{font-size:13px;color:var(--muted);margin-top:6px;text-align:center}
+  a.src{font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
+  details{border:1px solid var(--rule);border-radius:6px;margin:12px 0}
+  details>summary{cursor:pointer;padding:8px 12px;color:var(--muted);font-size:13px;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .tag{font-size:12px;font-weight:700;letter-spacing:.04em}
+  @media(max-width:760px){.wrap{grid-template-columns:1fr}.ba{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc"><h2>Contents</h2><ol>
+  <li><a href="#decision">Host stays the default</a></li>
+  <li><a href="#api">Child env, not the bind host</a></li>
+  <li><a href="#files">Where the probe lands</a></li>
+  <li><a href="#resolver">Selectable only when unset</a></li>
+  <li><a href="#risk">Loopback stays loopback</a></li>
+</ol></nav>
+<main>
+<header class="title">
+  <div class="eyebrow">Design note · local launchers</div>
+  <h1>A local Docker sandbox is offered when the daemon is up</h1>
+  <p class="sub">When <code>docker info</code> succeeds, the host Agent Server is started with both conversation runtimes. New conversations still run on the host. Home and Settings → Runtime can put one conversation in its own container. Canvas and automation stay on the host.</p>
+</header>
+
+<section id="decision">
+<h2><span class="num">1</span>Host execution stays the default</h2>
+<p>The UI already shows Docker when <code>/server_info</code> lists it in <code>available_conversation_runtimes</code>. Launchers previously forwarded that capability only if the parent process already had <code>OH_CONVERSATION_RUNTIME</code> or <code>OH_CONVERSATION_RUNTIME_SELECTABLE</code>. This change probes Docker and, with no explicit choice, sets the selectable flag on the agent-server child.</p>
+<div class="callout"><strong>★</strong> The automatic default is written only into the agent-server environment. <a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-with-automation.mjs#L530">resolveBindHost</a> still reads the parent environment, so a machine with Docker keeps <code>127.0.0.1</code> and the injected session key.</div>
+<div class="ba">
+<figure class="fig">
+<svg viewBox="0 0 360 250" role="img" aria-label="Before: runtime env is copied from the parent only">
+  <text x="16" y="22" font-family="ui-sans-serif,sans-serif" font-size="13" font-weight="700" fill="#1a1a1a">Before</text>
+  <rect x="16" y="40" width="150" height="44" rx="6" fill="#f7f6f1" stroke="#bdbcb4"/>
+  <text x="28" y="58" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">parent env</text>
+  <text x="28" y="74" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">OH_CONVERSATION_*</text>
+  <rect x="190" y="40" width="154" height="44" rx="6" fill="#f7f6f1" stroke="#bdbcb4"/>
+  <text x="202" y="58" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">buildAgentServerEnv</text>
+  <text x="202" y="74" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">copy if defined</text>
+  <line x1="166" y1="62" x2="190" y2="62" stroke="#1a1a1a" stroke-width="1.4"/>
+  <polygon points="190,58 198,62 190,66" fill="#1a1a1a"/>
+  <rect x="16" y="120" width="328" height="52" rx="6" fill="#f7f6f1" stroke="#bdbcb4"/>
+  <text x="28" y="142" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">agent-server: conversation_runtime local</text>
+  <text x="28" y="158" font-family="ui-sans-serif,sans-serif" font-size="11" fill="#5a5a5a">Home has no Docker choice unless the env was set</text>
+  <line x1="267" y1="84" x2="267" y2="120" stroke="#1a1a1a" stroke-width="1.4"/>
+  <text x="16" y="210" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">dev-safe.mjs:1011 Object.fromEntries filter</text>
+</svg>
+<figcaption>Before: Docker exists only when the operator already exported it.</figcaption>
+</figure>
+<figure class="fig">
+<svg viewBox="0 0 360 250" role="img" aria-label="After: a successful docker probe adds selectable on the child">
+  <text x="16" y="22" font-family="ui-sans-serif,sans-serif" font-size="13" font-weight="700" fill="#1a1a1a">After</text>
+  <rect x="16" y="40" width="150" height="44" rx="6" fill="#fff1e6" stroke="#c45c12" stroke-width="1.6"/>
+  <text x="28" y="58" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">probeDockerDaemonOnce</text>
+  <text x="28" y="74" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">docker info, once</text>
+  <rect x="190" y="40" width="154" height="44" rx="6" fill="#fff1e6" stroke="#c45c12" stroke-width="1.6"/>
+  <text x="202" y="58" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">resolveConversation…</text>
+  <text x="202" y="74" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">SELECTABLE=1 + image</text>
+  <line x1="166" y1="62" x2="190" y2="62" stroke="#c45c12" stroke-width="1.6"/>
+  <polygon points="190,58 198,62 190,66" fill="#c45c12"/>
+  <rect x="16" y="120" width="328" height="52" rx="6" fill="#f7f6f1" stroke="#bdbcb4"/>
+  <text x="28" y="142" font-family="ui-monospace,monospace" font-size="11" fill="#1a1a1a">child env only · parent bind stays 127.0.0.1</text>
+  <text x="28" y="158" font-family="ui-sans-serif,sans-serif" font-size="11" fill="#5a5a5a">Home default remains local_repo; Docker is a choice</text>
+  <line x1="267" y1="84" x2="180" y2="120" stroke="#1a1a1a" stroke-width="1.4"/>
+  <text x="16" y="210" font-family="ui-monospace,monospace" font-size="10" fill="#5a5a5a">dev-safe.mjs:1017 resolveConversationRuntimeEnv</text>
+</svg>
+<figcaption>After: a live daemon makes Docker selectable. The host runtime is still what a new conversation uses.</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="api">
+<h2><span class="num">2</span>The child env grows; the launcher contract does not</h2>
+<p>Compatibility is additive. <code>compatibility.minimumAgentServer</code> stays 1.59.0. No new Agent Server field. <code>buildAgentServerEnv</code> gains an optional <code>dockerAvailable</code> flag that defaults to false, so existing tests that pass <code>{ env: {} }</code> stay host-only.</p>
+<table>
+  <thead><tr><th></th><th>Before <a class="src" href="https://github.com/asnowbear/OpenHands/blob/5ed4ffa5ac2509e479acc12b83247fbb4c3612c8/scripts/dev-safe.mjs#L1009">buildAgentServerEnv</a></th><th>After <a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-safe.mjs#L1145">buildAgentServerEnv</a></th></tr></thead>
+  <tbody>
+    <tr><td>Unset runtime, no daemon flag</td><td>no <code>OH_CONVERSATION_*</code></td><td>same (<code>dockerAvailable</code> defaults false)</td></tr>
+    <tr><td>Unset runtime, daemon up</td><td>not represented</td><td><code>OH_CONVERSATION_RUNTIME_SELECTABLE=1</code> and pinned <code>OH_CONVERSATION_IMAGE</code></td></tr>
+    <tr><td>Explicit runtime or selectable</td><td>copied through</td><td>copied through; a Docker-capable result with no image is pinned</td></tr>
+    <tr><td>Ingress bind</td><td><code>0.0.0.0</code> only if the parent env already asked</td><td>unchanged; the auto flag is not in the parent env</td></tr>
+  </tbody>
+</table>
+<pre><code>resolveConversationRuntimeEnv({ env, dockerAvailable, image })
+  → Record&lt;string, string&gt;   <span class="com">// only conversation-runtime keys</span></code></pre>
+</section>
+
+<section id="files">
+<h2><span class="num">3</span>Four launchers probe; the image entrypoint does not</h2>
+<p><code>probeDockerDaemonOnce</code> runs <code>docker info</code> with a 5s timeout and caches the boolean. A missing binary, a stopped daemon, or a timeout leaves the host-only server and does not fail the stack.</p>
+<table>
+  <thead><tr><th>File</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-safe.mjs#L1017">scripts/dev-safe.mjs</a> ✏️</td><td><code>resolveConversationRuntimeEnv</code>, the probe, and the <code>dev:minimal</code> spawn</td></tr>
+    <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-with-automation.mjs#L1182">scripts/dev-with-automation.mjs</a> ✏️</td><td><code>npm run dev</code>, <code>agent-canvas</code>, Electron</td></tr>
+    <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-static.mjs#L361">scripts/dev-static.mjs</a> ✏️</td><td>static frontend stack</td></tr>
+    <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-extra-backend.mjs#L165">scripts/dev-extra-backend.mjs</a> ✏️</td><td>extra local agent-server</td></tr>
+    <tr><td>docker/entrypoint.sh</td><td>unchanged. The all-in-one image does not nest sandboxes</td></tr>
+    <tr><td>src/utils/workspace-mode.ts</td><td>unchanged. Default mode remains <code>local_repo</code></td></tr>
+  </tbody>
+</table>
+<p>The image tag is <code>computeAgentServerImage</code>: <code>ghcr.io/openhands/agent-server:&lt;versions.agentServer&gt;-python</code>. An explicit <code>OH_CONVERSATION_IMAGE</code> is kept.</p>
+</section>
+
+<section id="resolver">
+<h2><span class="num">4</span>An explicit choice always wins</h2>
+<p><a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-safe.mjs#L1028">explicitChoice</a> is true when either variable is present, including <code>OH_CONVERSATION_RUNTIME=local</code> and <code>OH_CONVERSATION_RUNTIME_SELECTABLE=0</code>. Those stay host-only even if Docker is up. <code>OH_CONVERSATION_RUNTIME=docker</code> stays docker-only. The pinned image is filled in only when the resolved env is Docker-capable and the image key is absent.</p>
+<details>
+<summary>Tests that lock this</summary>
+<p><code>npx vitest run __tests__/scripts/dev-safe.test.ts __tests__/scripts/dev-with-automation.test.ts</code> — 184 passed. The new cases cover auto-select plus pinned image, opt-out, a custom image left in place, a failed <code>docker info</code>, and loopback bind with the session key still injected.</p>
+</details>
+</section>
+
+<section id="risk">
+<h2><span class="num">5</span>A Docker conversation may not reach host ingress</h2>
+<div class="callout warn"><strong>⚠</strong> Containers reach host services through <code>host.docker.internal</code>. That path needs the ingress on <code>0.0.0.0</code>, which today happens only when the parent env sets <code>OH_CONVERSATION_RUNTIME=docker</code> or <code>OH_CONVERSATION_RUNTIME_SELECTABLE=1</code> (<a class="src" href="https://github.com/asnowbear/OpenHands/blob/cbd8ad3071eed4b02df7b1786b6ea4f636cef995/scripts/dev-with-automation.mjs#L530">resolveBindHost</a>). The automatic default deliberately does not do that, so tool execution inside the container works, and callbacks to ingress or automation on the host do not, until the operator sets one of those variables or <code>OH_BIND_HOST</code>.</div>
+<p>The first Docker conversation also pulls the pinned agent-server image. Startup of Canvas itself does not wait on that pull.</p>
+</section>
+</main>
+</div>
+</body>
+</html>
