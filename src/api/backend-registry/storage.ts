@@ -10,6 +10,12 @@ import type {
   BackendSelection,
 } from "./types";
 
+/**
+ * 后端列表与当前选择分别落在 localStorage 键 openhands-backends 与
+ * openhands-active-backend。首次读取时，若启动器已给出可用的 Local，就种下
+ * 默认项；之后若 id 为 default-local 且主机仍对应启动器，会把轮换后的会话
+ * 密钥同步进这条记录。当前选择同时写入 sessionStorage，避免其他标签页覆盖。
+ */
 export const BACKENDS_STORAGE_KEY = "openhands-backends";
 export const ACTIVE_BACKEND_STORAGE_KEY = "openhands-active-backend";
 
@@ -101,6 +107,10 @@ export function writeStoredBackends(backends: Backend[]): void {
   }
 }
 
+/**
+ * 读后端列表。锁定到 Cloud 时只保留 Cloud；否则首次加载种下 Local，
+ * 并同步 default-local 的启动器密钥。
+ */
 export function readStoredBackends(): Backend[] {
   if (typeof window === "undefined") return [];
 

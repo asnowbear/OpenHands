@@ -7,6 +7,11 @@ import {
 import type { Backend } from "./types";
 
 /**
+ * 默认连接的构造器。makeDefaultLocalBackend 用启动器注入的主机与会话密钥
+ * 种下 Local；部署锁定到 Cloud 时不得种下 Local，否则会跳过首次引导。
+ */
+
+/**
  * Stable id for the seeded default local backend that is auto-registered in
  * the backend registry when the launcher provides both a backend host and
  * API key. After seeding, this backend is a normal registered entry — the
@@ -36,6 +41,10 @@ export function makeLockedCloudBackend(): Backend | null {
 }
 
 /**
+ * 用启动器注入的主机与会话密钥构造默认 Local。两者缺一，或部署已锁定到
+ * Cloud（VITE_LOCK_TO_CLOUD / --lock-to-cloud）时返回 null，避免种下一条
+ * 断开的 Local 并绕过首次引导。
+ *
  * Construct the default local backend from environment/runtime config.
  * Returns null unless both a backend location and API key are available.
  *

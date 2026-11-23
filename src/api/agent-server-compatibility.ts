@@ -278,6 +278,9 @@ export function assertAgentServerVersionIsSupported(
 }
 
 /**
+ * 本地后端校验分两步：GET /api/settings 核对 API key，
+ * GET /server_info 核对版本是否达到下限。
+ *
  * Validates a local agent-server backend with a two-step probe:
  *  1. GET /api/settings — authenticates the configured session API key;
  *     a 401 throws an Error with message {@link INVALID_BACKEND_API_KEY_ERROR}.

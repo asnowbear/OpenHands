@@ -14,6 +14,10 @@ export {
   isOpenHandsCloudHost,
 } from "@openhands/typescript-client/client/device-flow-client";
 
+/**
+ * 授权一条 Cloud 后端的入口：向 Cloud 主机发起设备码流程，
+ * 用户在浏览器确认后由 pollForToken 换取访问令牌。
+ */
 export function startDeviceFlow(
   host: string,
 ): Promise<DeviceAuthorizationResponse> {

@@ -93,6 +93,9 @@ async function connectAndWait(
 const freshlyAttached = new Set<string>();
 
 /**
+ * attach() 把 Managed Agents 隧道收成一条普通的 local 后端（主机是本机
+ * 转发地址），之后与其他 Local 走同一条连接路径。
+ *
  * Registration/lifecycle wiring between MARS sessions and the backend
  * registry. `attach()` connects to the session, waits for its agent-server
  * to answer, and registers it as an ordinary local `Backend` (or re-points
