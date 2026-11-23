@@ -37,9 +37,14 @@ describe("ConversationGitActionsToggle", () => {
 
     render(<ConversationGitActionsToggle />);
 
-    expect(
-      screen.getByTestId("conversation-git-actions-toggle"),
-    ).toBeInTheDocument();
+    const toggle = screen.getByTestId("conversation-git-actions-toggle");
+    expect(toggle).toBeInTheDocument();
+    expect(toggle).toHaveAccessibleName(
+      "CONVERSATION$OVERVIEW_DIFF_GIT_ACTIONS",
+    );
+    expect(toggle).not.toHaveTextContent(
+      "CONVERSATION$OVERVIEW_DIFF_GIT_ACTIONS",
+    );
   });
 
   it("opens a dropdown of git actions and fills the composer with prompts", async () => {

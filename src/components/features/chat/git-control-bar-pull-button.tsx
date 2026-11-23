@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import ArrowDownIcon from "#/icons/u-arrow-down.svg?react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { cn, getGitPullPrompt } from "#/utils/utils";
 import {
   gitControlBarActionButtonClassName,
   gitControlBarActionIconColor,
-  gitControlBarActionLabelClassName,
 } from "#/utils/git-control-bar-classes";
 import { I18nKey } from "#/i18n/declaration";
 import { useTracking } from "#/hooks/use-tracking";
@@ -33,29 +33,30 @@ export function GitControlBarPullButton({
     onSuggestionsClick(getGitPullPrompt());
   };
 
+  const label = t(I18nKey.COMMON$PULL);
+
   return (
-    <button
-      type="button"
-      onClick={handlePullClick}
-      disabled={!isButtonEnabled}
-      className={cn(
-        gitControlBarActionButtonClassName(isButtonEnabled),
-        "px-0.5 py-1 w-19 min-w-19",
-      )}
-    >
-      <div className="w-3 h-3 flex items-center justify-center">
-        <ArrowDownIcon
-          width={12}
-          height={12}
-          color={gitControlBarActionIconColor(isButtonEnabled)}
-        />
-      </div>
-      <div
-        className={cn(gitControlBarActionLabelClassName, "max-w-19")}
-        title={t(I18nKey.COMMON$PULL)}
-      >
-        {t(I18nKey.COMMON$PULL)}
-      </div>
-    </button>
+    <StyledTooltip content={label} placement="top">
+      <span className="inline-flex">
+        <button
+          type="button"
+          onClick={handlePullClick}
+          disabled={!isButtonEnabled}
+          aria-label={label}
+          className={cn(
+            gitControlBarActionButtonClassName(isButtonEnabled),
+            "size-7",
+          )}
+        >
+          <span className="flex size-3 items-center justify-center" aria-hidden>
+            <ArrowDownIcon
+              width={12}
+              height={12}
+              color={gitControlBarActionIconColor(isButtonEnabled)}
+            />
+          </span>
+        </button>
+      </span>
+    </StyledTooltip>
   );
 }

@@ -144,7 +144,8 @@ describe("PlanPreview", () => {
     renderPlanPreview(<PlanPreview planContent="Plan content" />);
 
     const buildButton = screen.getByTestId("plan-preview-build-button");
-    expect(buildButton).toBeInTheDocument();
+    expect(buildButton).toHaveAccessibleName("COMMON$BUILD");
+    expect(buildButton).not.toHaveTextContent("COMMON$BUILD");
   });
 
   it("should switch to code mode when Build button is clicked", async () => {

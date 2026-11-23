@@ -1,6 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useRef } from "react";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { BackNavButton } from "#/components/shared/buttons/back-nav-button";
 import { useSearchSecrets } from "#/hooks/query/use-get-secrets";
 import { useDeleteSecret } from "#/hooks/mutation/use-delete-secret";
@@ -112,16 +114,24 @@ export function SecretsSettingsScreen() {
               {t(I18nKey.SETTINGS$PAGE_SECRETS_SUBLINE)}
             </p>
           </div>
-          <BrandButton
-            testId="add-secret-button"
-            type="button"
-            variant="primary"
-            className="shrink-0 whitespace-nowrap"
-            onClick={() => setView("add-secret-form")}
-            isDisabled={isLoadingSecrets}
+          <StyledTooltip
+            content={t(I18nKey.SECRETS$ADD_NEW_SECRET)}
+            placement="bottom"
           >
-            {t(I18nKey.SECRETS$ADD_NEW_SECRET)}
-          </BrandButton>
+            <span className="inline-flex">
+              <BrandButton
+                testId="add-secret-button"
+                type="button"
+                variant="primary"
+                className="w-9 shrink-0 px-0"
+                ariaLabel={t(I18nKey.SECRETS$ADD_NEW_SECRET)}
+                onClick={() => setView("add-secret-form")}
+                isDisabled={isLoadingSecrets}
+              >
+                <Plus className="size-4" aria-hidden />
+              </BrandButton>
+            </span>
+          </StyledTooltip>
         </div>
       ) : null}
 

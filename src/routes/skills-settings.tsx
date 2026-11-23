@@ -1,7 +1,9 @@
 import React from "react";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router";
 import { BrandButton } from "#/components/features/settings/brand-button";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import {
   ExtensionsNavigation,
   ExtensionsCompactNavigation,
@@ -176,15 +178,23 @@ function SkillsSettingsScreen() {
                 </div>
               )}
             </div>
-            <BrandButton
-              type="button"
-              variant="secondary"
-              testId="skills-add-skill-button"
-              className="flex-shrink-0 whitespace-nowrap"
-              onClick={() => setShowAddSkillModal(true)}
+            <StyledTooltip
+              content={t(I18nKey.SETTINGS$SKILLS_ADD_BUTTON)}
+              placement="bottom"
             >
-              {t(I18nKey.SETTINGS$SKILLS_ADD_BUTTON)}
-            </BrandButton>
+              <span className="inline-flex">
+                <BrandButton
+                  type="button"
+                  variant="secondary"
+                  testId="skills-add-skill-button"
+                  className="w-9 shrink-0 px-0"
+                  ariaLabel={t(I18nKey.SETTINGS$SKILLS_ADD_BUTTON)}
+                  onClick={() => setShowAddSkillModal(true)}
+                >
+                  <Plus className="size-4" aria-hidden />
+                </BrandButton>
+              </span>
+            </StyledTooltip>
           </div>
 
           {isLoading ? (

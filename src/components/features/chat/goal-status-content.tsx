@@ -17,9 +17,12 @@ import {
   stopGoal,
 } from "#/hooks/mutation/conversation-mutation-utils";
 import { displayErrorToast } from "#/utils/custom-toast-handlers";
+import PauseIcon from "#/icons/pause.svg?react";
+import PlayIcon from "#/icons/play-solid.svg?react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { cn } from "#/utils/utils";
 import {
-  chatInputPillButtonClassName,
+  chatInputIconButtonClassName,
   formControlDisabledClassName,
 } from "#/utils/form-control-classes";
 import { GenericEventMessage } from "./generic-event-message";
@@ -132,18 +135,24 @@ export function GoalStatusContent({
   let actionButton: ReactNode = null;
   if (conversationId && active) {
     actionButton = (
-      <button
-        type="button"
-        data-testid="goal-stop"
-        disabled={pending}
-        onClick={handleStop}
-        className={cn(
-          chatInputPillButtonClassName,
-          formControlDisabledClassName,
-        )}
-      >
-        {t(I18nKey.GOAL$STOP)}
-      </button>
+      <StyledTooltip content={t(I18nKey.GOAL$STOP)} placement="top">
+        <span className="inline-flex">
+          <button
+            type="button"
+            data-testid="goal-stop"
+            disabled={pending}
+            onClick={handleStop}
+            aria-label={t(I18nKey.GOAL$STOP)}
+            className={cn(
+              chatInputIconButtonClassName,
+              "size-6",
+              formControlDisabledClassName,
+            )}
+          >
+            <PauseIcon className="size-4" aria-hidden />
+          </button>
+        </span>
+      </StyledTooltip>
     );
   } else if (
     conversationId &&
@@ -152,18 +161,24 @@ export function GoalStatusContent({
     !goalActive
   ) {
     actionButton = (
-      <button
-        type="button"
-        data-testid="goal-resume"
-        disabled={pending}
-        onClick={handleResume}
-        className={cn(
-          chatInputPillButtonClassName,
-          formControlDisabledClassName,
-        )}
-      >
-        {t(I18nKey.GOAL$RESUME)}
-      </button>
+      <StyledTooltip content={t(I18nKey.GOAL$RESUME)} placement="top">
+        <span className="inline-flex">
+          <button
+            type="button"
+            data-testid="goal-resume"
+            disabled={pending}
+            onClick={handleResume}
+            aria-label={t(I18nKey.GOAL$RESUME)}
+            className={cn(
+              chatInputIconButtonClassName,
+              "size-6",
+              formControlDisabledClassName,
+            )}
+          >
+            <PlayIcon className="size-4" aria-hidden />
+          </button>
+        </span>
+      </StyledTooltip>
     );
   }
 

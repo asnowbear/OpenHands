@@ -12,12 +12,13 @@ import {
   formControlTransitionClassName,
 } from "#/utils/form-control-classes";
 import { ChatActionTooltip } from "../chat/chat-action-tooltip";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { ConversationGitActionsMenu } from "./conversation-git-actions-menu";
 
 /** Same 28px height as overview / drawer header icon buttons. */
 const GIT_ACTIONS_BUTTON_CLASSNAME = cn(
-  "inline-flex h-7 min-h-7 w-fit shrink-0 cursor-pointer items-center justify-center gap-1.5 px-2.5",
-  "rounded-md text-xs font-normal leading-none",
+  "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center",
+  "rounded-md",
   formControlBorderClassName,
   formControlTransitionClassName,
   "text-muted",
@@ -80,19 +81,18 @@ export function ConversationGitActionsToggle({
           "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-muted",
         className,
       )}
+      aria-label={label}
       aria-expanded={isGitMenuOpen}
       aria-haspopup="menu"
       aria-disabled={isArchivedConversation}
       data-testid="conversation-git-actions-toggle"
     >
       <GitCommitHorizontal className="size-4 shrink-0" size={16} aria-hidden />
-      <span className="whitespace-nowrap">{label}</span>
     </button>
   );
 
   return (
     <div className="relative inline-flex items-center self-center">
-      {/* Label is visible, so a tooltip only adds value for the disabled reason. */}
       {isArchivedConversation ? (
         <ChatActionTooltip
           tooltip={t(I18nKey.CONVERSATION$UNAVAILABLE_FOR_ARCHIVES)}
@@ -101,7 +101,9 @@ export function ConversationGitActionsToggle({
           {button}
         </ChatActionTooltip>
       ) : (
-        button
+        <StyledTooltip content={label} placement="bottom">
+          <span className="inline-flex">{button}</span>
+        </StyledTooltip>
       )}
       {isGitMenuOpen ? (
         <ConversationGitActionsMenu

@@ -32,11 +32,11 @@ describe("<BtwMessages />", () => {
     const user = userEvent.setup();
     render(<BtwMessages conversationId={CONV} />);
     expect(screen.getByText(/because/i)).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", {
-        name: I18nKey.CHAT_INTERFACE$BTW_GOT_IT,
-      }),
-    );
+    const gotIt = screen.getByRole("button", {
+      name: I18nKey.CHAT_INTERFACE$BTW_GOT_IT,
+    });
+    expect(gotIt).not.toHaveTextContent(I18nKey.CHAT_INTERFACE$BTW_GOT_IT);
+    await user.click(gotIt);
     expect(entriesFor(CONV)).toEqual([]);
   });
 

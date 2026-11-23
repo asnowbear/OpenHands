@@ -195,7 +195,8 @@ describe("ErrorMessageBanner", () => {
     );
 
     const reauth = screen.getByTestId("error-message-banner-reauth");
-    expect(reauth).toHaveTextContent("ERROR$ACP_UPDATE_CREDENTIALS");
+    expect(reauth).toHaveAccessibleName("ERROR$ACP_UPDATE_CREDENTIALS");
+    expect(reauth).not.toHaveTextContent("ERROR$ACP_UPDATE_CREDENTIALS");
     await user.click(reauth);
     expect(onReauth).toHaveBeenCalledTimes(1);
   });

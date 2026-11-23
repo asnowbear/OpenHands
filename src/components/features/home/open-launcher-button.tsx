@@ -37,8 +37,9 @@ export function OpenLauncherButton({
       data-testid={testId}
       onClick={onClick}
       disabled={disabled}
+      aria-label={label}
       className={cn(
-        "flex flex-row items-center gap-2 rounded-full px-2.5 py-1 text-contrast",
+        "inline-flex size-7 items-center justify-center rounded-full text-contrast",
         formControlBorderClassName,
         formControlSurfaceClassName,
         formControlTransitionClassName,
@@ -47,23 +48,21 @@ export function OpenLauncherButton({
           : "cursor-pointer hover:bg-surface-raised",
       )}
     >
-      <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+      <span
+        className="flex size-4 shrink-0 items-center justify-center"
+        aria-hidden
+      >
         {isLocal ? (
-          <Folder aria-hidden className="h-4 w-4" strokeWidth={2} />
+          <Folder className="size-4" strokeWidth={2} />
         ) : (
           <RepoForkedIcon width={16} height={16} className="shrink-0" />
         )}
       </span>
-      <span className="text-sm font-normal leading-5">{label}</span>
     </button>
   );
 
-  if (!disabledTooltip) {
-    return button;
-  }
-
   return (
-    <StyledTooltip content={disabledTooltip} placement="top">
+    <StyledTooltip content={disabledTooltip ?? label} placement="top">
       <span className="inline-flex">{button}</span>
     </StyledTooltip>
   );

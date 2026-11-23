@@ -226,7 +226,8 @@ describe("AutomationGitSync — sync progress", () => {
 
     expect(activityRow()).toHaveAttribute("data-state", "running");
     expect(displaySuccessToast).not.toHaveBeenCalled();
-    expect(syncNow).toHaveTextContent(I18nKey.AUTOMATIONS$GIT_SYNC$SYNCING);
+    expect(syncNow).toHaveAccessibleName(I18nKey.AUTOMATIONS$GIT_SYNC$SYNCING);
+    expect(syncNow).not.toHaveTextContent(I18nKey.AUTOMATIONS$GIT_SYNC$SYNCING);
     expect(syncNow).toBeDisabled();
   });
 

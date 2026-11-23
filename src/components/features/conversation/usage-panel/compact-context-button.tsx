@@ -41,24 +41,29 @@ export function CompactContextButton({
         </span>
       )}
       <div className="flex items-center gap-2">
-        <BrandButton
-          testId="compact-context-button"
-          type="button"
-          variant={isHighFill ? "primary" : "secondary"}
-          isDisabled={isDisabled}
-          aria-busy={isCompacting}
-          onClick={handleCompact}
-          startContent={
-            isCompacting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Minimize className="h-4 w-4" aria-hidden />
-            )
-          }
-          className="w-fit"
+        <StyledTooltip
+          content={t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
+          placement="top"
         >
-          {t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
-        </BrandButton>
+          <span className="inline-flex">
+            <BrandButton
+              testId="compact-context-button"
+              type="button"
+              variant={isHighFill ? "primary" : "secondary"}
+              isDisabled={isDisabled}
+              aria-busy={isCompacting}
+              ariaLabel={t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
+              onClick={handleCompact}
+              className="w-9 px-0"
+            >
+              {isCompacting ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Minimize className="size-4" aria-hidden />
+              )}
+            </BrandButton>
+          </span>
+        </StyledTooltip>
         <StyledTooltip
           content={description}
           placement="top"

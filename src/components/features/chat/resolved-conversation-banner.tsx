@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, FolderOpen } from "lucide-react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { I18nKey } from "#/i18n/declaration";
 import AgentServerConversationService from "#/api/conversation-service/agent-server-conversation-service.api";
@@ -136,15 +137,23 @@ export function ResolvedConversationBanner() {
           {t(I18nKey.CHAT_INTERFACE$RESOLVED_DESCRIPTION)}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={handleReopen}
-        disabled={isPending}
-        className="shrink-0 cursor-pointer rounded-md border border-border px-2 py-1 text-xs font-normal text-foreground hover:bg-interactive-hover disabled:cursor-not-allowed disabled:opacity-50"
-        data-testid="resolved-conversation-reopen"
+      <StyledTooltip
+        content={t(I18nKey.CHAT_INTERFACE$RESOLVED_REOPEN)}
+        placement="top"
       >
-        {t(I18nKey.CHAT_INTERFACE$RESOLVED_REOPEN)}
-      </button>
+        <span className="inline-flex">
+          <button
+            type="button"
+            onClick={handleReopen}
+            disabled={isPending}
+            aria-label={t(I18nKey.CHAT_INTERFACE$RESOLVED_REOPEN)}
+            className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border text-foreground hover:bg-interactive-hover disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="resolved-conversation-reopen"
+          >
+            <FolderOpen className="size-3.5" aria-hidden />
+          </button>
+        </span>
+      </StyledTooltip>
     </div>
   );
 }
