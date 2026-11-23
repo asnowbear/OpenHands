@@ -147,9 +147,9 @@ describe("ContextWindowMeter", () => {
       screen.getByText("20% CONVERSATION$USED (80% CONVERSATION$LEFT)"),
     ).toBeInTheDocument();
     expect(screen.getByText("198.5k / 1.0M")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("context-window-compact-button"),
-    ).toHaveTextContent("CONVERSATION$COMPACT_CONTEXT");
+    const compact = screen.getByTestId("context-window-compact-button");
+    expect(compact).toHaveAccessibleName("CONVERSATION$COMPACT_CONTEXT");
+    expect(compact).not.toHaveTextContent("CONVERSATION$COMPACT_CONTEXT");
     expect(screen.getByText("CONVERSATION$CONTEXT_WINDOW")).toBeInTheDocument();
   });
 

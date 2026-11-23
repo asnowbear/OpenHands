@@ -12,6 +12,7 @@ import ClockIcon from "#/icons/clock.svg?react";
 import { SectionCard } from "#/components/features/automations/detail/section-card";
 import { ConfigField } from "#/components/features/automations/detail/config-field";
 import { BrandButton } from "#/components/features/settings/brand-button";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { GitSyncStatusPill } from "./git-sync-status-pill";
 import {
   GitSyncActivityRow,
@@ -128,25 +129,35 @@ export function GitSyncOverviewSection({
             )}
           />
         </div>
-        <BrandButton
-          testId="git-sync-now-button"
-          type="button"
-          variant="secondary"
-          isDisabled={!canManage || !status.enabled || isSyncing}
-          onClick={onSyncNow}
-          startContent={
-            <RefreshCw
-              className={cn("size-4", isSyncing && "animate-spin")}
-              aria-hidden
-            />
-          }
-        >
-          {t(
+        <StyledTooltip
+          content={t(
             isSyncing
               ? I18nKey.AUTOMATIONS$GIT_SYNC$SYNCING
               : I18nKey.AUTOMATIONS$GIT_SYNC$SYNC_NOW,
           )}
-        </BrandButton>
+          placement="top"
+        >
+          <span className="inline-flex">
+            <BrandButton
+              testId="git-sync-now-button"
+              type="button"
+              variant="secondary"
+              isDisabled={!canManage || !status.enabled || isSyncing}
+              ariaLabel={t(
+                isSyncing
+                  ? I18nKey.AUTOMATIONS$GIT_SYNC$SYNCING
+                  : I18nKey.AUTOMATIONS$GIT_SYNC$SYNC_NOW,
+              )}
+              onClick={onSyncNow}
+              className="w-9 px-0"
+            >
+              <RefreshCw
+                className={cn("size-4", isSyncing && "animate-spin")}
+                aria-hidden
+              />
+            </BrandButton>
+          </span>
+        </StyledTooltip>
       </div>
 
       <GitSyncActivityRow

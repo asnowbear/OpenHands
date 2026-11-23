@@ -1,5 +1,5 @@
 import React from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, RotateCcw, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "#/utils/utils";
 import { CopyToClipboardButton } from "#/components/shared/buttons/copy-to-clipboard-button";
@@ -274,24 +274,40 @@ export function ChatMessage({
         >
           <span>{t(I18nKey.CHAT_INTERFACE$MESSAGE_SEND_FAILED)}</span>
           {onRetry ? (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="cursor-pointer rounded-md border border-border px-2 py-1 text-xs font-normal text-foreground hover:bg-interactive-hover"
-              data-testid="chat-message-retry"
+            <StyledTooltip
+              content={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+              placement="top"
             >
-              {t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
-            </button>
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  aria-label={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+                  className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md border border-border text-foreground hover:bg-interactive-hover"
+                  data-testid="chat-message-retry"
+                >
+                  <RotateCcw className="size-3.5" aria-hidden />
+                </button>
+              </span>
+            </StyledTooltip>
           ) : null}
           {onDismiss ? (
-            <button
-              type="button"
-              onClick={onDismiss}
-              className="cursor-pointer rounded-md border border-border px-2 py-1 text-xs font-normal text-foreground hover:bg-interactive-hover"
-              data-testid="chat-message-dismiss"
+            <StyledTooltip
+              content={t(I18nKey.CHAT_INTERFACE$MESSAGE_DISMISS)}
+              placement="top"
             >
-              {t(I18nKey.CHAT_INTERFACE$MESSAGE_DISMISS)}
-            </button>
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  onClick={onDismiss}
+                  aria-label={t(I18nKey.CHAT_INTERFACE$MESSAGE_DISMISS)}
+                  className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md border border-border text-foreground hover:bg-interactive-hover"
+                  data-testid="chat-message-dismiss"
+                >
+                  <X className="size-3.5" aria-hidden />
+                </button>
+              </span>
+            </StyledTooltip>
           ) : null}
         </div>
       </div>

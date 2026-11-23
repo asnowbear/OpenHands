@@ -15,6 +15,3 @@ export function gitControlBarActionButtonClassName(isEnabled: boolean) {
 export function gitControlBarActionIconColor(isEnabled: boolean) {
   return isEnabled ? "var(--oh-contrast)" : "var(--oh-muted)";
 }
-
-export const gitControlBarActionLabelClassName =
-  "font-normal text-sm leading-5 truncate";

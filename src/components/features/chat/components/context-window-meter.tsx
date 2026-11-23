@@ -137,30 +137,36 @@ export function ContextWindowMeter() {
             </button>
 
             <div className="flex items-center justify-between gap-2">
-              <button
-                type="button"
-                data-testid="context-window-compact-button"
-                disabled={isDisabled}
-                aria-busy={isCompacting}
-                aria-label={t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs",
-                  "text-muted hover:bg-interactive-hover hover:text-foreground",
-                  "transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-                )}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  handleCompact();
-                }}
+              <StyledTooltip
+                content={t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
+                placement="top"
               >
-                {isCompacting ? (
-                  <Loader2 className="size-3 animate-spin" aria-hidden />
-                ) : (
-                  <Minimize className="size-3" aria-hidden />
-                )}
-                <span>{t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}</span>
-              </button>
+                <span className="inline-flex">
+                  <button
+                    type="button"
+                    data-testid="context-window-compact-button"
+                    disabled={isDisabled}
+                    aria-busy={isCompacting}
+                    aria-label={t(I18nKey.CONVERSATION$COMPACT_CONTEXT)}
+                    className={cn(
+                      "inline-flex size-6 items-center justify-center rounded",
+                      "text-muted hover:bg-interactive-hover hover:text-foreground",
+                      "transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                    )}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleCompact();
+                    }}
+                  >
+                    {isCompacting ? (
+                      <Loader2 className="size-3 animate-spin" aria-hidden />
+                    ) : (
+                      <Minimize className="size-3" aria-hidden />
+                    )}
+                  </button>
+                </span>
+              </StyledTooltip>
               <span className="text-xs text-muted">{usageTokenSummary}</span>
             </div>
           </div>

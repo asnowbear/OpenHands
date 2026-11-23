@@ -1,6 +1,15 @@
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Check, CircleAlert, CircleX, Copy, X } from "lucide-react";
+import {
+  Check,
+  CircleAlert,
+  CircleX,
+  Copy,
+  KeyRound,
+  RotateCcw,
+  X,
+} from "lucide-react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { I18nKey } from "#/i18n/declaration";
 import { displayErrorToast } from "#/utils/custom-toast-handlers";
 import { getAcpErrorHeaderKey } from "#/utils/acp-error-codes";
@@ -137,14 +146,22 @@ export function ErrorMessageBanner({
         </div>
 
         {onReauth && (
-          <button
-            type="button"
-            onClick={onReauth}
-            className="mt-2 cursor-pointer rounded-md border border-border px-2 py-1 text-xs font-normal text-foreground hover:bg-interactive-hover"
-            data-testid="error-message-banner-reauth"
+          <StyledTooltip
+            content={t(I18nKey.ERROR$ACP_UPDATE_CREDENTIALS)}
+            placement="top"
           >
-            {t(I18nKey.ERROR$ACP_UPDATE_CREDENTIALS)}
-          </button>
+            <span className="mt-2 inline-flex">
+              <button
+                type="button"
+                onClick={onReauth}
+                aria-label={t(I18nKey.ERROR$ACP_UPDATE_CREDENTIALS)}
+                className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md border border-border text-foreground hover:bg-interactive-hover"
+                data-testid="error-message-banner-reauth"
+              >
+                <KeyRound className="size-3.5" aria-hidden />
+              </button>
+            </span>
+          </StyledTooltip>
         )}
 
         {shouldShowToggle && (
@@ -168,14 +185,22 @@ export function ErrorMessageBanner({
         )}
       >
         {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="cursor-pointer rounded-md border border-border px-2 py-1 text-xs font-normal text-foreground hover:bg-interactive-hover"
-            data-testid="error-message-banner-retry"
+          <StyledTooltip
+            content={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+            placement="top"
           >
-            {t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
-          </button>
+            <span className="inline-flex">
+              <button
+                type="button"
+                onClick={onRetry}
+                aria-label={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+                className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md border border-border text-foreground hover:bg-interactive-hover"
+                data-testid="error-message-banner-retry"
+              >
+                <RotateCcw className="size-3.5" aria-hidden />
+              </button>
+            </span>
+          </StyledTooltip>
         )}
 
         <button

@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Hammer } from "lucide-react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import LessonPlanIcon from "#/icons/lesson-plan.svg?react";
 import { Typography } from "#/ui/typography";
 import { I18nKey } from "#/i18n/declaration";
@@ -15,6 +16,7 @@ import {
 import { useScrollContext } from "#/context/scroll-context";
 
 const MAX_CONTENT_LENGTH = 300;
+const BUILD_SHORTCUT = "⌘↩";
 
 // Shine effect class for streaming text
 const SHINE_TEXT_CLASS = "shine-text";
@@ -31,7 +33,6 @@ interface PlanPreviewProps {
   isBuildDisabled?: boolean;
 }
 
-/* eslint-disable i18next/no-literal-string */
 export function PlanPreview({
   planContent,
   isStreaming,
@@ -117,25 +118,28 @@ export function PlanPreview({
 
       {/* Footer */}
       <div className="border-t border-border flex h-13.5 items-center justify-start px-4">
-        <button
-          type="button"
-          onClick={handleBuildClick}
-          disabled={isBuildDisabled}
-          className={cn(
-            "bg-contrast flex items-center justify-center h-6.5 px-2 rounded-sm w-23.25 transition-opacity",
-            isBuildDisabled
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:opacity-90 cursor-pointer",
-          )}
-          data-testid="plan-preview-build-button"
+        <StyledTooltip
+          content={`${t(I18nKey.COMMON$BUILD)} ${BUILD_SHORTCUT}`}
+          placement="top"
         >
-          <Typography.Text className="font-normal text-sm text-contrast-foreground leading-5">
-            {t(I18nKey.COMMON$BUILD)}{" "}
-            <Typography.Text className="font-normal text-contrast-foreground">
-              ⌘↩
-            </Typography.Text>
-          </Typography.Text>
-        </button>
+          <span className="inline-flex">
+            <button
+              type="button"
+              onClick={handleBuildClick}
+              disabled={isBuildDisabled}
+              aria-label={t(I18nKey.COMMON$BUILD)}
+              className={cn(
+                "inline-flex size-7 items-center justify-center rounded-sm bg-contrast text-contrast-foreground transition-opacity",
+                isBuildDisabled
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer hover:opacity-90",
+              )}
+              data-testid="plan-preview-build-button"
+            >
+              <Hammer className="size-4" aria-hidden />
+            </button>
+          </span>
+        </StyledTooltip>
       </div>
     </div>
   );

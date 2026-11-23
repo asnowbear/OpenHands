@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AgentState } from "#/types/agent-state";
 import { CompactContextButton } from "./compact-context-button";
@@ -70,9 +71,23 @@ describe("CompactContextButton", () => {
       "CONVERSATION$COMPACT_CONTEXT_DESCRIPTION",
     );
 
-    const button = screen.getByTestId("compact-context-button");
-    expect(button).toHaveClass("w-fit");
+    const button = screen.getByRole("button", {
+      name: "CONVERSATION$COMPACT_CONTEXT",
+    });
+    expect(button).toBe(screen.getByTestId("compact-context-button"));
+    expect(button).not.toHaveTextContent("CONVERSATION$COMPACT_CONTEXT");
     expect(button).not.toHaveClass("w-full");
+  });
+
+  it("still compacts when the icon button is clicked", async () => {
+    const user = userEvent.setup();
+    renderButton(40);
+
+    await user.click(
+      screen.getByRole("button", { name: "CONVERSATION$COMPACT_CONTEXT" }),
+    );
+
+    expect(mutateMock).toHaveBeenCalledTimes(1);
   });
 
   it("adds a high-fill warning once the context passes the warning threshold", () => {
@@ -81,8 +96,8 @@ describe("CompactContextButton", () => {
     expect(
       screen.getByText("CONVERSATION$CONTEXT_FILLING_UP"),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("compact-context-button")).toHaveTextContent(
-      "CONVERSATION$COMPACT_CONTEXT",
-    );
+    expect(
+      screen.getByRole("button", { name: "CONVERSATION$COMPACT_CONTEXT" }),
+    ).not.toHaveTextContent("CONVERSATION$COMPACT_CONTEXT");
   });
 });

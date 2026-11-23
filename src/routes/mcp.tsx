@@ -4,9 +4,11 @@ import {
   ExtensionsNavigation,
   ExtensionsCompactNavigation,
 } from "#/components/features/skills/extensions-navigation";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { I18nKey } from "#/i18n/declaration";
 import { BrandButton } from "#/components/features/settings/brand-button";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { useSettings } from "#/hooks/query/use-settings";
 import { useUpdateMcpServer } from "#/hooks/mutation/use-update-mcp-server";
 import { useCloudMcpSettingsUrl } from "#/hooks/use-cloud-mcp-settings-url";
@@ -150,15 +152,23 @@ export default function MCPPage() {
                   {t(I18nKey.MCP$PAGE_DESCRIPTION)}
                 </div>
               </div>
-              <BrandButton
-                type="button"
-                variant="secondary"
-                testId="mcp-add-custom-server"
-                className="flex-shrink-0 whitespace-nowrap"
-                onClick={() => setEditingServer({ id: "", type: "sse" })}
+              <StyledTooltip
+                content={t(I18nKey.MCP$ADD_CUSTOM)}
+                placement="bottom"
               >
-                {t(I18nKey.MCP$ADD_CUSTOM)}
-              </BrandButton>
+                <span className="inline-flex">
+                  <BrandButton
+                    type="button"
+                    variant="secondary"
+                    testId="mcp-add-custom-server"
+                    className="w-9 shrink-0 px-0"
+                    ariaLabel={t(I18nKey.MCP$ADD_CUSTOM)}
+                    onClick={() => setEditingServer({ id: "", type: "sse" })}
+                  >
+                    <Plus className="size-4" aria-hidden />
+                  </BrandButton>
+                </span>
+              </StyledTooltip>
             </div>
           </div>
 

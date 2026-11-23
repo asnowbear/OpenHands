@@ -7,7 +7,13 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { LayoutGroup } from "framer-motion";
-import { Gauge, Globe, ListTodo, SquareChevronRight } from "lucide-react";
+import {
+  Gauge,
+  Globe,
+  Hammer,
+  ListTodo,
+  SquareChevronRight,
+} from "lucide-react";
 import { LuFileDiff } from "react-icons/lu";
 import DocumentIcon from "#/icons/document.svg?react";
 import DoubleCheckIcon from "#/icons/double-check.svg?react";
@@ -18,6 +24,7 @@ import { CONVERSATION_TAB_LABEL_KEYS } from "./conversation-tab-ids";
 import { ConversationTabNav } from "./conversation-tab-nav";
 import { DrawerVSCodeLink } from "./drawer-vscode-link";
 import { ChatActionTooltip } from "../../chat/chat-action-tooltip";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { I18nKey } from "#/i18n/declaration";
 import { useConversationStore } from "#/stores/conversation-store";
 import { ConversationTabsContextMenu } from "./conversation-tabs-context-menu";
@@ -28,8 +35,9 @@ import { useActiveBackend } from "#/contexts/active-backend-context";
 import { useHandleBuildPlanClick } from "#/hooks/use-handle-build-plan-click";
 import { useAgentState, usePlanningAgentState } from "#/hooks/use-agent-state";
 import { AgentState } from "#/types/agent-state";
-import { Typography } from "#/ui/typography";
 import { mobileTopBarIconClassName } from "#/utils/mobile-top-bar-icon-button-classes";
+
+const BUILD_SHORTCUT = "⌘↩";
 
 export function ConversationTabs({
   variant = "default",
@@ -437,23 +445,28 @@ export function ConversationTabs({
             "flex h-10 min-h-10 shrink-0 items-center border-t border-border pl-2.5 pr-1",
           )}
         >
-          <button
-            type="button"
-            onClick={handleBuildPlanClick}
-            disabled={isBuildDisabled}
-            className={cn(
-              "flex h-5 min-w-17 items-center justify-center rounded bg-contrast px-2 transition-opacity",
-              isBuildDisabled
-                ? "cursor-not-allowed opacity-50"
-                : "cursor-pointer hover:opacity-90",
-            )}
-            data-testid="planner-tab-build-button"
+          <StyledTooltip
+            content={`${t(I18nKey.COMMON$BUILD)} ${BUILD_SHORTCUT}`}
+            placement="top"
           >
-            <Typography.Text className="text-2xs font-normal leading-5 text-contrast-foreground">
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              {t(I18nKey.COMMON$BUILD)} ⌘↩
-            </Typography.Text>
-          </button>
+            <span className="inline-flex">
+              <button
+                type="button"
+                onClick={handleBuildPlanClick}
+                disabled={isBuildDisabled}
+                aria-label={t(I18nKey.COMMON$BUILD)}
+                className={cn(
+                  "inline-flex size-7 items-center justify-center rounded bg-contrast text-contrast-foreground transition-opacity",
+                  isBuildDisabled
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer hover:opacity-90",
+                )}
+                data-testid="planner-tab-build-button"
+              >
+                <Hammer className="size-3.5" aria-hidden />
+              </button>
+            </span>
+          </StyledTooltip>
         </div>
       )}
     </>

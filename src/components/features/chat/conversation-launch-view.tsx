@@ -9,7 +9,9 @@ import {
   CHAT_COMPOSER_CLASS_NAME,
 } from "./chat-layout";
 import { useEffect, useRef } from "react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { useConversationLaunchStore } from "#/stores/conversation-launch-store";
 import { useActiveBackend } from "#/contexts/active-backend-context";
 import { useNavigation } from "#/context/navigation-context";
@@ -115,13 +117,21 @@ export function ConversationLaunchView({ launchId }: { launchId: string }) {
                     className="flex flex-col items-start gap-4"
                   >
                     <p>{t(I18nKey.CONVERSATION$START_NOT_IN_TAB)}</p>
-                    <button
-                      type="button"
-                      className="button-base rounded-md border border-border px-3 py-1.5"
-                      onClick={() => navigate("/conversations")}
+                    <StyledTooltip
+                      content={t(I18nKey.COMMON$BACK)}
+                      placement="top"
                     >
-                      {t(I18nKey.COMMON$BACK)}
-                    </button>
+                      <span className="inline-flex">
+                        <button
+                          type="button"
+                          aria-label={t(I18nKey.COMMON$BACK)}
+                          className="button-base inline-flex size-7 items-center justify-center rounded-md border border-border"
+                          onClick={() => navigate("/conversations")}
+                        >
+                          <ArrowLeft className="size-4" aria-hidden />
+                        </button>
+                      </span>
+                    </StyledTooltip>
                   </div>
                 )}
               </div>

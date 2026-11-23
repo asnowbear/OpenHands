@@ -1,5 +1,7 @@
 import React from "react";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import {
   ExtensionsNavigation,
   ExtensionsCompactNavigation,
@@ -144,16 +146,24 @@ export default function SkillsPluginsScreen() {
                 {t(I18nKey.SETTINGS$PLUGINS_PAGE_DESCRIPTION)}
               </div>
             </div>
-            <BrandButton
-              type="button"
-              variant="secondary"
-              testId="plugins-add-plugin-button"
-              isDisabled={!isLocal}
-              className="flex-shrink-0 whitespace-nowrap"
-              onClick={() => setShowAddModal(true)}
+            <StyledTooltip
+              content={t(I18nKey.SETTINGS$PLUGINS_ADD_BUTTON)}
+              placement="bottom"
             >
-              {t(I18nKey.SETTINGS$PLUGINS_ADD_BUTTON)}
-            </BrandButton>
+              <span className="inline-flex">
+                <BrandButton
+                  type="button"
+                  variant="secondary"
+                  testId="plugins-add-plugin-button"
+                  isDisabled={!isLocal}
+                  className="w-9 shrink-0 px-0"
+                  ariaLabel={t(I18nKey.SETTINGS$PLUGINS_ADD_BUTTON)}
+                  onClick={() => setShowAddModal(true)}
+                >
+                  <Plus className="size-4" aria-hidden />
+                </BrandButton>
+              </span>
+            </StyledTooltip>
           </div>
 
           {isLoading && (

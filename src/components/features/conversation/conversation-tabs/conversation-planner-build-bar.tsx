@@ -1,4 +1,6 @@
+import { Hammer } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { cn } from "#/utils/utils";
 import { I18nKey } from "#/i18n/declaration";
 import { useConversationStore } from "#/stores/conversation-store";
@@ -6,7 +8,8 @@ import { useSelectConversationTab } from "#/hooks/use-select-conversation-tab";
 import { useHandleBuildPlanClick } from "#/hooks/use-handle-build-plan-click";
 import { useAgentState, usePlanningAgentState } from "#/hooks/use-agent-state";
 import { AgentState } from "#/types/agent-state";
-import { Typography } from "#/ui/typography";
+
+const BUILD_SHORTCUT = "⌘↩";
 
 /**
  * The Planner tab's Build row, shown below the drawer tab row while the
@@ -32,6 +35,7 @@ export function ConversationPlannerBuildBar({
     curAgentState === AgentState.LOADING ||
     isPlanningAgentRunning;
   const isBuildDisabled = isAgentRunning || !planContent;
+  const buildLabel = t(I18nKey.COMMON$BUILD);
 
   return (
     <div
@@ -40,23 +44,28 @@ export function ConversationPlannerBuildBar({
         className,
       )}
     >
-      <button
-        type="button"
-        onClick={handleBuildPlanClick}
-        disabled={isBuildDisabled}
-        className={cn(
-          "flex h-5 min-w-17 items-center justify-center rounded bg-contrast px-2 transition-opacity",
-          isBuildDisabled
-            ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer hover:opacity-90",
-        )}
-        data-testid="planner-tab-build-button"
+      <StyledTooltip
+        content={`${buildLabel} ${BUILD_SHORTCUT}`}
+        placement="top"
       >
-        <Typography.Text className="text-2xs font-normal leading-5 text-contrast-foreground">
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          {t(I18nKey.COMMON$BUILD)} ⌘↩
-        </Typography.Text>
-      </button>
+        <span className="inline-flex">
+          <button
+            type="button"
+            onClick={handleBuildPlanClick}
+            disabled={isBuildDisabled}
+            aria-label={buildLabel}
+            className={cn(
+              "inline-flex size-7 items-center justify-center rounded bg-contrast text-contrast-foreground transition-opacity",
+              isBuildDisabled
+                ? "cursor-not-allowed opacity-50"
+                : "cursor-pointer hover:opacity-90",
+            )}
+            data-testid="planner-tab-build-button"
+          >
+            <Hammer className="size-3.5" aria-hidden />
+          </button>
+        </span>
+      </StyledTooltip>
     </div>
   );
 }

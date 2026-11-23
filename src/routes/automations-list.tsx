@@ -816,16 +816,23 @@ export default function AutomationsList() {
               (admins/owners) on every backend kind, not the local-only edit
               gate. */}
           {canManage && (
-            <BrandButton
-              type="button"
-              variant="secondary"
-              testId="automations-git-sync"
-              className="whitespace-nowrap"
-              onClick={() => navigate?.("/automations/git-sync")}
-              startContent={<RefreshCw className="size-4" aria-hidden />}
+            <StyledTooltip
+              content={t(I18nKey.AUTOMATIONS$GIT_SYNC$NAV_BUTTON)}
+              placement="bottom"
             >
-              {t(I18nKey.AUTOMATIONS$GIT_SYNC$NAV_BUTTON)}
-            </BrandButton>
+              <span className="inline-flex">
+                <BrandButton
+                  type="button"
+                  variant="secondary"
+                  testId="automations-git-sync"
+                  className="w-9 px-0"
+                  ariaLabel={t(I18nKey.AUTOMATIONS$GIT_SYNC$NAV_BUTTON)}
+                  onClick={() => navigate?.("/automations/git-sync")}
+                >
+                  <RefreshCw className="size-4" aria-hidden />
+                </BrandButton>
+              </span>
+            </StyledTooltip>
           )}
           <AddAutomationMenu
             onAdd={startSetup}

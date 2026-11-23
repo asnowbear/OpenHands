@@ -3,6 +3,7 @@ import { ChevronDown, FileUp, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ContextMenuListItem } from "#/components/features/context-menu/context-menu-list-item";
 import { BrandButton } from "#/components/features/settings/brand-button";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { I18nKey } from "#/i18n/declaration";
 import { ContextMenu } from "#/ui/context-menu";
 import { KebabMenuItemContent } from "./kebab-menu-item-content";
@@ -124,21 +125,28 @@ export function AddAutomationMenu({
       </ContextMenu>
     ) : null;
 
+  const label = t(I18nKey.AUTOMATIONS$ADD_AUTOMATION);
+
   return (
     <>
-      <BrandButton
-        ref={triggerRef}
-        type="button"
-        variant="secondary"
-        testId="automations-add-automation"
-        className="whitespace-nowrap"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        {t(I18nKey.AUTOMATIONS$ADD_AUTOMATION)}
-        <ChevronDown className="size-4 shrink-0" aria-hidden />
-      </BrandButton>
+      <StyledTooltip content={label} placement="bottom">
+        <span className="inline-flex">
+          <BrandButton
+            ref={triggerRef}
+            type="button"
+            variant="secondary"
+            testId="automations-add-automation"
+            className="gap-0.5 px-2"
+            ariaLabel={label}
+            aria-haspopup="menu"
+            aria-expanded={open}
+            onClick={() => setOpen((current) => !current)}
+          >
+            <Plus className="size-4 shrink-0" aria-hidden />
+            <ChevronDown className="size-3 shrink-0" aria-hidden />
+          </BrandButton>
+        </span>
+      </StyledTooltip>
 
       {open && portalStyle && typeof document !== "undefined" ? (
         <AppearancePortal>

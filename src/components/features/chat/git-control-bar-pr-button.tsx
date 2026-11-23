@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import PRIcon from "#/icons/u-pr.svg?react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { cn, getCreatePRPrompt } from "#/utils/utils";
 import {
   gitControlBarActionButtonClassName,
   gitControlBarActionIconColor,
-  gitControlBarActionLabelClassName,
 } from "#/utils/git-control-bar-classes";
 import { I18nKey } from "#/i18n/declaration";
 import { Provider } from "#/types/settings";
@@ -36,29 +36,30 @@ export function GitControlBarPrButton({
     onSuggestionsClick(getCreatePRPrompt(currentGitProvider));
   };
 
+  const label = t(I18nKey.COMMON$PULL_REQUEST);
+
   return (
-    <button
-      type="button"
-      onClick={handlePrClick}
-      disabled={!isButtonEnabled}
-      className={cn(
-        gitControlBarActionButtonClassName(isButtonEnabled),
-        "px-2 py-1 w-31.5 min-w-31.5 h-7",
-      )}
-    >
-      <div className="w-3 h-3 flex items-center justify-center">
-        <PRIcon
-          width={12}
-          height={12}
-          color={gitControlBarActionIconColor(isButtonEnabled)}
-        />
-      </div>
-      <div
-        className={cn(gitControlBarActionLabelClassName, "max-w-31.5")}
-        title={t(I18nKey.COMMON$PULL_REQUEST)}
-      >
-        {t(I18nKey.COMMON$PULL_REQUEST)}
-      </div>
-    </button>
+    <StyledTooltip content={label} placement="top">
+      <span className="inline-flex">
+        <button
+          type="button"
+          onClick={handlePrClick}
+          disabled={!isButtonEnabled}
+          aria-label={label}
+          className={cn(
+            gitControlBarActionButtonClassName(isButtonEnabled),
+            "size-7",
+          )}
+        >
+          <span className="flex size-3 items-center justify-center" aria-hidden>
+            <PRIcon
+              width={12}
+              height={12}
+              color={gitControlBarActionIconColor(isButtonEnabled)}
+            />
+          </span>
+        </button>
+      </span>
+    </StyledTooltip>
   );
 }

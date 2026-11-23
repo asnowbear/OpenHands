@@ -5,7 +5,8 @@ import { EventGroup } from "#/components/conversation-events/chat/event-message-
 import { SessionActivityDetails } from "#/components/conversation-events/chat/event-message-components/session-activity";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Pencil, RotateCcw } from "lucide-react";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { DisclosureCaret } from "#/components/shared/disclosure-caret";
 import { I18nKey } from "#/i18n/declaration";
 import type { AppConversationStartTaskStatus } from "#/api/conversation-service/agent-server-conversation-service.types";
@@ -129,22 +130,38 @@ export function ConversationStartupProgress({
       {error && (onEdit || onRetry) && (
         <div className="flex flex-wrap items-center gap-2 pb-2">
           {onEdit && (
-            <button
-              type="button"
-              className="button-base rounded-md border border-border px-3 py-1.5"
-              onClick={onEdit}
+            <StyledTooltip
+              content={editLabel ?? t(I18nKey.BUTTON$EDIT)}
+              placement="top"
             >
-              {editLabel ?? t(I18nKey.BUTTON$EDIT)}
-            </button>
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  aria-label={editLabel ?? t(I18nKey.BUTTON$EDIT)}
+                  className="button-base inline-flex size-7 items-center justify-center rounded-md border border-border"
+                  onClick={onEdit}
+                >
+                  <Pencil className="size-3.5" aria-hidden />
+                </button>
+              </span>
+            </StyledTooltip>
           )}
           {onRetry && (
-            <button
-              type="button"
-              className="button-base rounded-md border border-border px-3 py-1.5"
-              onClick={onRetry}
+            <StyledTooltip
+              content={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+              placement="top"
             >
-              {t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
-            </button>
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  aria-label={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+                  className="button-base inline-flex size-7 items-center justify-center rounded-md border border-border"
+                  onClick={onRetry}
+                >
+                  <RotateCcw className="size-3.5" aria-hidden />
+                </button>
+              </span>
+            </StyledTooltip>
           )}
         </div>
       )}

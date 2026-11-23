@@ -1,4 +1,6 @@
+import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { StyledTooltip } from "#/components/shared/buttons/styled-tooltip";
 import { I18nKey } from "#/i18n/declaration";
 import type { ConnectionRecoveryState } from "#/hooks/use-connection-error-grace-period";
 
@@ -24,13 +26,21 @@ export function ConnectionRecoveryNotice({
         )}
       </span>
       {state === "retryable" && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="shrink-0 rounded px-2 py-1 text-foreground hover:bg-white/5"
+        <StyledTooltip
+          content={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+          placement="top"
         >
-          {t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
-        </button>
+          <span className="inline-flex">
+            <button
+              type="button"
+              onClick={onRetry}
+              aria-label={t(I18nKey.CHAT_INTERFACE$MESSAGE_RETRY)}
+              className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded text-foreground hover:bg-white/5"
+            >
+              <RotateCcw className="size-3.5" aria-hidden />
+            </button>
+          </span>
+        </StyledTooltip>
       )}
     </div>
   );
