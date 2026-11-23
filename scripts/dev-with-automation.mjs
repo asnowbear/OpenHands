@@ -73,6 +73,8 @@ import {
   buildAgentServerCommand,
   buildSafeDevConfig,
   buildAgentServerEnv,
+  conversationSandboxDefaultMessage,
+  probeDockerDaemonOnce,
   buildBackendLogEnv,
   backendLogLevel,
   uvicornLogLevel,
@@ -1177,6 +1179,7 @@ function startAgentServer(config) {
     ...buildAgentServerEnv(safeConfig, {
       vscodeBasePath: config.vscodeBasePath,
       verbose: config.verbose,
+      dockerAvailable: probeDockerDaemonOnce(),
     }),
     ...buildAgentServerAutomationEnv(config),
     OPENHANDS_REMOTE_WS_READY_REQUIRED:
@@ -1190,6 +1193,9 @@ function startAgentServer(config) {
     // parseAgentServerLogLine re-formats into a clean single-line entry.
     LOG_JSON: "true",
   };
+
+  const sandboxMessage = conversationSandboxDefaultMessage(agentServerEnv);
+  if (sandboxMessage) logService("agent-server", sandboxMessage, c.dim);
 
   spawnService(
     "agent-server",

@@ -15,6 +15,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { server as mswServer } from "#/mocks/node";
+import { computeAgentServerImage } from "../../scripts/gen-acp-docker-env.mjs";
 import {
   assertPortsFree,
   buildSafeDevConfig,
@@ -23,6 +24,9 @@ import {
   buildAgentServerCommand,
   buildAgentServerEnv,
   buildAgentServerTelemetryEnv,
+  conversationSandboxDefaultMessage,
+  dockerDaemonAvailable,
+  resolveConversationRuntimeEnv,
   buildRuntimeServicesInfo,
   buildUvxPythonArgs,
   formatMissingUvxGuidance,
@@ -569,6 +573,84 @@ describe("buildAgentServerTelemetryEnv", () => {
     expect(
       buildAgentServerEnv(agentServerConfig, { env: {} }),
     ).not.toHaveProperty("OH_CONVERSATION_RUNTIME");
+    expect(
+      buildAgentServerEnv(agentServerConfig, { env: {} }),
+    ).not.toHaveProperty("OH_CONVERSATION_RUNTIME_SELECTABLE");
+  });
+
+  it("offers a pinned Docker sandbox when the daemon is available and unset", () => {
+    const pinned = computeAgentServerImage(
+      JSON.parse(
+        readFileSync(path.join(repoRoot, "config/defaults.json"), "utf-8"),
+      ),
+    );
+    const env = buildAgentServerEnv(agentServerConfig, {
+      env: {},
+      dockerAvailable: true,
+    });
+
+    expect(env.OH_CONVERSATION_RUNTIME_SELECTABLE).toBe("1");
+    expect(env.OH_CONVERSATION_IMAGE).toBe(pinned);
+    expect(env).not.toHaveProperty("OH_CONVERSATION_RUNTIME");
+    expect(
+      conversationSandboxDefaultMessage(env, {}),
+    ).toContain("Host execution remains the default");
+    expect(
+      conversationSandboxDefaultMessage(env, {
+        OH_CONVERSATION_RUNTIME_SELECTABLE: "1",
+      }),
+    ).toBeNull();
+  });
+
+  it("keeps an explicit conversation runtime and does not replace its image", () => {
+    expect(
+      resolveConversationRuntimeEnv({
+        env: { OH_CONVERSATION_RUNTIME: "local" },
+        dockerAvailable: true,
+      }),
+    ).toEqual({ OH_CONVERSATION_RUNTIME: "local" });
+
+    expect(
+      resolveConversationRuntimeEnv({
+        env: { OH_CONVERSATION_RUNTIME_SELECTABLE: "0" },
+        dockerAvailable: true,
+      }),
+    ).toEqual({ OH_CONVERSATION_RUNTIME_SELECTABLE: "0" });
+
+    const pinned = computeAgentServerImage(
+      JSON.parse(
+        readFileSync(path.join(repoRoot, "config/defaults.json"), "utf-8"),
+      ),
+    );
+    expect(
+      resolveConversationRuntimeEnv({
+        env: {
+          OH_CONVERSATION_RUNTIME: "docker",
+          OH_CONVERSATION_IMAGE: "agent-server:custom",
+        },
+        dockerAvailable: false,
+      }),
+    ).toEqual({
+      OH_CONVERSATION_RUNTIME: "docker",
+      OH_CONVERSATION_IMAGE: "agent-server:custom",
+    });
+    expect(
+      resolveConversationRuntimeEnv({
+        env: { OH_CONVERSATION_RUNTIME: "docker" },
+        dockerAvailable: false,
+      }).OH_CONVERSATION_IMAGE,
+    ).toBe(pinned);
+  });
+
+  it("treats a failed docker info as no daemon", () => {
+    expect(
+      dockerDaemonAvailable({
+        run: () => {
+          throw new Error("docker is not running");
+        },
+      }),
+    ).toBe(false);
+    expect(dockerDaemonAvailable({ run: () => undefined })).toBe(true);
   });
 
   it("turns the browser off on the agent-server when browser tools are disabled", () => {

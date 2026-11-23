@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import {
   existsSync,
@@ -18,6 +18,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { applySessionKeyPolicy } from "./bind-host.mjs";
+import { computeAgentServerImage } from "./gen-acp-docker-env.mjs";
 import {
   getProcessTreeSpawnOptions,
   isProcessRunning,
@@ -55,6 +56,9 @@ const LOCAL_AGENT_SERVER_SUBDIRS = [
   "openhands-workspace",
 ];
 const DEFAULT_AGENT_SERVER_VERSION = SHARED_DEFAULTS.versions.agentServer;
+// Per-conversation sandbox image. The SDK's own fallback is the floating
+// `latest-python` tag; launchers pin the release this Canvas build ships with.
+const DEFAULT_CONVERSATION_IMAGE = computeAgentServerImage(SHARED_DEFAULTS);
 const DEFAULT_AGENT_SERVER_TELEMETRY_POSTHOG_API_KEY =
   SHARED_DEFAULTS.telemetry.posthogApiKey;
 const DEFAULT_AGENT_SERVER_TELEMETRY_POSTHOG_HOST =
@@ -977,6 +981,132 @@ export function buildBackendLogEnv(options = {}) {
   };
 }
 
+const CONVERSATION_RUNTIME_ENV_KEYS = [
+  "OH_CONVERSATION_RUNTIME",
+  "OH_CONVERSATION_RUNTIME_SELECTABLE",
+  "OH_CONVERSATION_IMAGE",
+  "OH_CONVERSATION_IMAGE_HAS_BROWSER",
+  "OH_CONVERSATION_CONTAINER_MEMORY",
+  "OH_CONVERSATION_CONTAINER_CPUS",
+  "OH_CONVERSATION_CONTAINER_PIDS_LIMIT",
+  "OH_CONVERSATION_CONTAINER_STARTUP_TIMEOUT",
+];
+
+/**
+ * @param {string | undefined} value
+ * @returns {boolean}
+ */
+function conversationRuntimeSelectableEnabled(value) {
+  if (value === undefined) return false;
+  const normalized = String(value).trim().toLowerCase();
+  return normalized === "1" || normalized === "true";
+}
+
+/**
+ * Conversation-runtime env for the agent-server child.
+ *
+ * Explicit `OH_CONVERSATION_RUNTIME` / `OH_CONVERSATION_RUNTIME_SELECTABLE`
+ * values are copied through. `local` and `SELECTABLE=0` stay host-only.
+ * When `dockerAvailable` is true and neither variable is set, the server is
+ * told to offer both runtimes (`SELECTABLE=1`). A Docker-capable result with
+ * no image is pinned to this Canvas release instead of the SDK's floating tag.
+ *
+ * @param {{env?: Record<string, string | undefined>, dockerAvailable?: boolean, image?: string}} [options]
+ * @returns {Record<string, string>}
+ */
+export function resolveConversationRuntimeEnv({
+  env = {},
+  dockerAvailable = false,
+  image = DEFAULT_CONVERSATION_IMAGE,
+} = {}) {
+  /** @type {Record<string, string>} */
+  const resolved = {};
+  for (const key of CONVERSATION_RUNTIME_ENV_KEYS) {
+    if (env[key] !== undefined) resolved[key] = env[key];
+  }
+
+  const explicitChoice =
+    env.OH_CONVERSATION_RUNTIME !== undefined ||
+    env.OH_CONVERSATION_RUNTIME_SELECTABLE !== undefined;
+  if (dockerAvailable && !explicitChoice) {
+    resolved.OH_CONVERSATION_RUNTIME_SELECTABLE = "1";
+  }
+
+  const dockerCapable =
+    resolved.OH_CONVERSATION_RUNTIME === "docker" ||
+    conversationRuntimeSelectableEnabled(
+      resolved.OH_CONVERSATION_RUNTIME_SELECTABLE,
+    );
+  if (dockerCapable && resolved.OH_CONVERSATION_IMAGE === undefined) {
+    resolved.OH_CONVERSATION_IMAGE = image;
+  }
+  return resolved;
+}
+
+/**
+ * Whether `docker info` succeeds. A missing binary, a stopped daemon, or a
+ * timeout is "not available"; callers keep the host-only runtime.
+ *
+ * @param {{run?: (timeoutMs: number) => void, timeoutMs?: number}} [options]
+ * @returns {boolean}
+ */
+export function dockerDaemonAvailable({
+  run = runDockerInfo,
+  timeoutMs = 5_000,
+} = {}) {
+  try {
+    run(timeoutMs);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * @param {number} timeoutMs
+ */
+function runDockerInfo(timeoutMs) {
+  execFileSync("docker", ["info"], {
+    timeout: timeoutMs,
+    stdio: "ignore",
+  });
+}
+
+let dockerDaemonProbed = false;
+let dockerDaemonProbeResult = false;
+
+/** One `docker info` per process. Later calls reuse the first result. */
+export function probeDockerDaemonOnce() {
+  if (!dockerDaemonProbed) {
+    dockerDaemonProbeResult = dockerDaemonAvailable();
+    dockerDaemonProbed = true;
+  }
+  return dockerDaemonProbeResult;
+}
+
+/**
+ * Notice for the automatic selectable default. Explicit parent-env choices
+ * stay quiet: those already opted in, including the off-loopback bind.
+ *
+ * @param {Record<string, string | undefined>} childEnv
+ * @param {Record<string, string | undefined>} [parentEnv]
+ * @returns {string | null}
+ */
+export function conversationSandboxDefaultMessage(
+  childEnv,
+  parentEnv = process.env,
+) {
+  const automatic =
+    parentEnv.OH_CONVERSATION_RUNTIME === undefined &&
+    parentEnv.OH_CONVERSATION_RUNTIME_SELECTABLE === undefined &&
+    childEnv.OH_CONVERSATION_RUNTIME_SELECTABLE === "1";
+  if (!automatic) return null;
+  return (
+    "Docker daemon found — new conversations can run in a local sandbox (Docker). " +
+    "Host execution remains the default. Set OH_CONVERSATION_RUNTIME_SELECTABLE=0 to hide it."
+  );
+}
+
 /**
  * Build the environment variables object for spawning the agent-server process.
  *
@@ -997,31 +1127,34 @@ export function buildBackendLogEnv(options = {}) {
  * opts in without one.
  *
  * @param {ReturnType<typeof buildSafeDevConfig>} config - Config from buildSafeDevConfig
- * @param {{vscodeBasePath?: string | null, env?: Record<string, string | undefined>, verbose?: boolean}} [options]
+ * @param {{vscodeBasePath?: string | null, env?: Record<string, string | undefined>, verbose?: boolean, dockerAvailable?: boolean, conversationImage?: string}} [options]
  * @param {string | null} [options.vscodeBasePath] - Opt into prefix-mode by
  *   passing the path prefix the caller also routes to `config.vscodePort`.
  * @param {Record<string, string | undefined>} [options.env] - Source
  *   environment for the telemetry mapping (defaults to `process.env`).
  * @param {boolean} [options.verbose] - Raise the agent-server to DEBUG
  *   logging instead of the default `WARNING` (see buildBackendLogEnv).
+ * @param {boolean} [options.dockerAvailable] - When true, and the source env
+ *   does not choose a conversation runtime, offer both host and Docker
+ *   sandboxes. Defaults to false so callers and tests stay host-only unless
+ *   a launcher has probed the daemon.
+ * @param {string} [options.conversationImage] - Image used when a Docker
+ *   sandbox is offered and `OH_CONVERSATION_IMAGE` is unset.
  * @returns {Record<string, string>} Environment variables for agent-server
  */
 export function buildAgentServerEnv(config, options = {}) {
-  const { vscodeBasePath = null, env = process.env, verbose = false } = options;
-  const conversationRuntimeEnv = Object.fromEntries(
-    [
-      "OH_CONVERSATION_RUNTIME",
-      "OH_CONVERSATION_RUNTIME_SELECTABLE",
-      "OH_CONVERSATION_IMAGE",
-      "OH_CONVERSATION_IMAGE_HAS_BROWSER",
-      "OH_CONVERSATION_CONTAINER_MEMORY",
-      "OH_CONVERSATION_CONTAINER_CPUS",
-      "OH_CONVERSATION_CONTAINER_PIDS_LIMIT",
-      "OH_CONVERSATION_CONTAINER_STARTUP_TIMEOUT",
-    ]
-      .filter((key) => env[key] !== undefined)
-      .map((key) => [key, env[key]]),
-  );
+  const {
+    vscodeBasePath = null,
+    env = process.env,
+    verbose = false,
+    dockerAvailable = false,
+    conversationImage = DEFAULT_CONVERSATION_IMAGE,
+  } = options;
+  const conversationRuntimeEnv = resolveConversationRuntimeEnv({
+    env,
+    dockerAvailable,
+    image: conversationImage,
+  });
   return {
     ...buildAgentServerTelemetryEnv(env),
     ...buildBackendLogEnv({ verbose, env }),
@@ -1238,6 +1371,16 @@ async function main() {
     ].join("\n"),
   );
 
+  const agentServerEnv = buildAgentServerEnv(config, {
+    vscodeBasePath: config.vscodeBasePath,
+    dockerAvailable: probeDockerDaemonOnce(),
+  });
+  const sandboxMessage = conversationSandboxDefaultMessage(agentServerEnv);
+  if (sandboxMessage) {
+    console.log(sandboxMessage);
+    fileLog("info", sandboxMessage);
+  }
+
   const backend = spawnProcess(
     agentServerCmd.command,
     [
@@ -1254,9 +1397,7 @@ async function main() {
         // Opt into prefix-mode: the Vite dev server proxies the same prefix to
         // `config.vscodePort` (see VITE_VSCODE_TARGET below), so the advertised
         // URL resolves on the frontend origin the browser is actually on.
-        ...buildAgentServerEnv(config, {
-          vscodeBasePath: config.vscodeBasePath,
-        }),
+        ...agentServerEnv,
       },
     },
   );

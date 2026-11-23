@@ -62,7 +62,7 @@ code review and dependency updates, then have your personal agents running on yo
 ### Option 1: Without a Sandbox
 
 > [!WARNING]
-> This runs the agent-server directly on the machine you're installing on — the agent will have full access to your filesystem!
+> This runs the agent-server directly on the machine you're installing on — the agent will have full access to your filesystem! If `docker info` succeeds, Home can instead run a new conversation in a local Docker sandbox (see Option 3). The default is still the host.
 
 **Prerequisites**: [Node.js](https://nodejs.org/) 24 or later, `uv`
 
@@ -151,7 +151,7 @@ The agent will be able to access any project under `PROJECTS_PATH`.
 
 ### Option 3: With Multiple Docker Sandboxes
 
-Run each new conversation in its own Docker container, with its own Agent Server and tools. This is useful for running several agents concurrently. Canvas and the outer Agent Server run on your host and route conversation requests to the containers.
+Run a conversation's agent in its own Docker container, with its own Agent Server and tools. Canvas and the outer Agent Server stay on your host and route that conversation to the container. This is useful for running several agents concurrently, or for keeping tool execution off the host filesystem.
 
 **Prerequisites**: Node.js 24 or later, `uv`, and a running Docker Desktop (macOS) or Docker Engine/Desktop (Linux). The user starting Canvas must be able to run `docker` commands.
 
@@ -159,8 +159,17 @@ Run each new conversation in its own Docker container, with its own Agent Server
 
 ```sh
 npm install -g @openhands/agent-canvas
-OH_CONVERSATION_RUNTIME=docker agent-canvas
+agent-canvas
 ```
+
+When `docker info` succeeds and you have not set `OH_CONVERSATION_RUNTIME` or `OH_CONVERSATION_RUNTIME_SELECTABLE`, the launcher offers both runtimes. New conversations still run on the host. On Home, or in Settings → Runtime, choose **Docker** to start that conversation in a local sandbox. The sandbox image is `ghcr.io/openhands/agent-server:<version>-python`, pinned to the Agent Server release this Canvas build uses, unless you set `OH_CONVERSATION_IMAGE`.
+
+```sh
+OH_CONVERSATION_RUNTIME_SELECTABLE=0 agent-canvas   # host execution only
+OH_CONVERSATION_RUNTIME=docker agent-canvas        # every new conversation in Docker
+```
+
+`OH_CONVERSATION_RUNTIME=docker` and an explicit `OH_CONVERSATION_RUNTIME_SELECTABLE=1` also publish the ingress on `0.0.0.0` so a container can reach host services through `host.docker.internal`. The automatic default does not: the UI stays on `127.0.0.1` and the session key stays injected. A Docker conversation can still run; it cannot call back to ingress or automation on the host until you set one of those variables (or `OH_BIND_HOST`).
 
 Open [http://localhost:8000](http://localhost:8000) and start a new conversation. Existing local conversations are not converted. Each container mounts its conversation's workspace and persisted state, so workspace files and conversation history survive container replacement. Conversations using the same host workspace still share those files; choose separate directories or worktrees to avoid conflicting edits.
 
@@ -169,7 +178,7 @@ This setting isolates conversation execution; it does not move the entire Canvas
 ### Option 4: From Source
 
 > [!WARNING]
-> This runs the agent-server directly on the machine you're installing on — the agent will have full access to your filesystem!
+> This runs the agent-server directly on the machine you're installing on — the agent will have full access to your filesystem! If `docker info` succeeds, Home can instead run a new conversation in a local Docker sandbox (see Option 3). The default is still the host.
 
 **Prerequisites**: [Node.js](https://nodejs.org/) 24 or later, npm 11.12.1 (the repository pin), `uv` (for running the agent server via `uvx`)
 

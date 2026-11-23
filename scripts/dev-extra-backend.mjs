@@ -8,6 +8,8 @@ import { pathToFileURL } from "node:url";
 import {
   buildAgentServerCommand,
   buildAgentServerEnv,
+  conversationSandboxDefaultMessage,
+  probeDockerDaemonOnce,
   buildSafeDevConfig,
   formatMissingUvxGuidance,
   validateLocalAgentServerPath,
@@ -159,6 +161,12 @@ async function main() {
   );
   console.log("");
 
+  const agentServerEnv = buildAgentServerEnv(config, {
+    dockerAvailable: probeDockerDaemonOnce(),
+  });
+  const sandboxMessage = conversationSandboxDefaultMessage(agentServerEnv);
+  if (sandboxMessage) console.log(sandboxMessage);
+
   const backend = spawnProcess(
     agentServerCmd.command,
     [
@@ -180,7 +188,7 @@ async function main() {
         // launcher stays out of prefix-mode; the editor button is unavailable
         // for conversations on an extra backend.
         ...process.env,
-        ...buildAgentServerEnv(config),
+        ...agentServerEnv,
       },
     },
   );
