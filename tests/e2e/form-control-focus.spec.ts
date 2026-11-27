@@ -38,6 +38,7 @@ for (const theme of [
   "light-plus",
   "solarized-light",
   "paper",
+  "ember",
 ] as const) {
   test(`${theme} preserves shared control borders through focus and blur`, async ({
     page,

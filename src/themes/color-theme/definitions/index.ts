@@ -5,6 +5,7 @@ import { openhandsNeo } from "./openhands-neo";
 import { lightPlus } from "./light-plus";
 import { solarizedLight } from "./solarized-light";
 import { paper } from "./paper";
+import { ember } from "./ember";
 
 /**
  * The theme registry.
@@ -19,6 +20,7 @@ export const COLOR_THEMES: Record<ColorThemeKey, ColorThemeDefinition> = {
   "light-plus": lightPlus,
   "solarized-light": solarizedLight,
   paper,
+  ember,
 };
 
 export const DEFAULT_COLOR_THEME: ColorThemeKey = "openhands-neutral";

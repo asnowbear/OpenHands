@@ -81,6 +81,28 @@ const paper: ITheme = {
   selectionBackground: "rgba(154, 38, 22, 0.18)",
 };
 
+// Dim slots stay light enough to read on umber; hue still separates the
+// ANSI colors, so the terminal is not a second copy of the copper chrome.
+const ember: ITheme = {
+  black: "#BE8D67",
+  red: "#F0A08A",
+  green: "#C6D7A1",
+  yellow: "#F0D48A",
+  blue: "#A9C7E8",
+  magenta: "#E7B6D4",
+  cyan: "#A8D8D0",
+  white: "#F0EBE8",
+  brightBlack: "#D2BAA7",
+  brightRed: "#FFB8A4",
+  brightGreen: "#D5E6B8",
+  brightYellow: "#FFE0A3",
+  brightBlue: "#C5DCF3",
+  brightMagenta: "#F3D0E6",
+  brightCyan: "#C6E8E2",
+  brightWhite: "#F9F7F5",
+  selectionBackground: "rgba(227, 154, 74, 0.28)",
+};
+
 const palettes: Record<ColorThemeKey, ITheme> = {
   "openhands-deepsea": dark,
   "openhands-neutral": dark,
@@ -88,6 +110,7 @@ const palettes: Record<ColorThemeKey, ITheme> = {
   "light-plus": light,
   "solarized-light": solarized,
   paper,
+  ember,
 };
 
 export function getTerminalTheme(

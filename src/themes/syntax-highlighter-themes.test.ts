@@ -23,6 +23,22 @@ describe("getSyntaxHighlighterTheme", () => {
     expect(getSyntaxHighlighterTheme("openhands-neutral")).toBe(vscDarkPlus);
   });
 
+  it("keeps Ember syntax text readable on its code surface", () => {
+    const palette = getSyntaxHighlighterTheme("ember");
+    const background = palette['pre[class*="language-"]'].backgroundColor;
+    expect(background).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(palette).not.toBe(vscDarkPlus);
+    const surface = luminance(background as string);
+    for (const [token, style] of Object.entries(palette)) {
+      if (!style.color) continue;
+      const ink = luminance(style.color as string);
+      expect(
+        (Math.max(ink, surface) + 0.05) / (Math.min(ink, surface) + 0.05),
+        token,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it("keeps Paper syntax text readable on its code surface", () => {
     const palette = getSyntaxHighlighterTheme("paper");
     const background = palette['pre[class*="language-"]'].backgroundColor;
