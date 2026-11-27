@@ -54,6 +54,22 @@ describe("terminal themes", () => {
     expect(terminalOptions).toEqual(original);
   });
 
+  it("keeps every Ember ANSI color readable against its terminal surface", () => {
+    const theme = getTerminalTheme("ember", "#F0EBE8");
+    const neutral = getTerminalTheme("openhands-neutral", "#F0EBE8");
+    expect(theme.black).not.toBe(neutral.black);
+    for (const role of ["--cool-grey-950", "--cool-grey-925"] as const) {
+      const surface = luminance(COLOR_THEMES.ember.scale[role]);
+      for (const slot of ansiSlots) {
+        const ink = luminance(theme[slot]!);
+        expect(
+          (Math.max(ink, surface) + 0.05) / (Math.min(ink, surface) + 0.05),
+          `${slot} on ${role}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
   it("keeps every Paper ANSI color readable against its terminal surface", () => {
     const theme = getTerminalTheme("paper", "#29241f");
     for (const role of ["--oh-color-base", "--oh-surface"] as const) {

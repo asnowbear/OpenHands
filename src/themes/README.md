@@ -24,6 +24,18 @@ uses `font-display: swap`. See [font provenance and licensing](./color-theme/def
 Both app and library builds include the full SIL OFL 1.1 license as
 `assets/newsreader-OFL.txt`.
 
+## Ember
+
+Ember (`ember`) is an optional dark palette: firelit umber surfaces and ivory
+text, with copper for primary actions and a peach spark for links and focus.
+Each neutral keeps the luminance of the matching OpenHands-Neutral step, so
+inherited status inks stay readable, but the hue is brown rather than grey or
+blue-slate. Code, diffs, and the terminal sit on the same umber; keywords are
+copper, and ANSI colors keep distinguishable hues. Select it in Settings →
+Application → Color Theme. It uses the existing `setColorTheme`.
+OpenHands-Neutral remains the default. Ember stays dark regardless of the
+operating system's appearance.
+
 ## Adding a palette
 
 1. Add a definition under `color-theme/definitions/`, including its appearance,
