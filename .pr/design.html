@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Icon action buttons</title>
+<title>Ember color theme</title>
 <style>
   :root{
     --fg:#1a1a1a; --muted:#5a5a5a; --subtle:#8a8a82;
@@ -46,172 +46,159 @@
   details>summary::-webkit-details-marker{display:none}
   details>summary::before{content:"▸ "} details[open]>summary::before{content:"▾ "}
   .ba{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
-  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:99px;background:var(--elevated);color:var(--muted)}
   @media(max-width:760px){.wrap{grid-template-columns:1fr}.ba{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <nav class="toc"><h2>Contents</h2><ol>
-    <li><a href="#changed">Action labels leave the face of the button</a></li>
-    <li><a href="#contract">Same click, name moves to aria-label</a></li>
-    <li><a href="#files">Where to look</a></li>
-    <li><a href="#git">Git pull, push, and PR</a></li>
-    <li><a href="#home">Home launcher and page adds</a></li>
-    <li><a href="#chat">Chat recovery and Build</a></li>
-    <li><a href="#kept">Text that stays</a></li>
-    <li><a href="#risk">Compatibility and risk</a></li>
+    <li><a href="#change">What changed</a></li>
+    <li><a href="#api">Key before and after</a></li>
+    <li><a href="#flow">How a selection applies</a></li>
+    <li><a href="#files">Files</a></li>
+    <li><a href="#risk">Compatibility</a></li>
   </ol></nav>
   <main>
     <header class="title">
-      <div class="eyebrow">UI · Agent Canvas</div>
-      <h1>Action buttons keep their names, and drop the visible words</h1>
-      <p class="sub">Visible action buttons whose label named a verb now show an icon from the existing set. The same i18n string is the accessible name and the tooltip. Confirmations, form submits, links, and controls whose text is the data stay written out.</p>
+      <div class="eyebrow">Color theme · additive</div>
+      <h1>Ember joins the settings picker</h1>
+      <p class="sub">Canvas gains one dark palette, <code>ember</code>, labeled Ember. The existing registry already feeds Settings → Application → Color Theme, so registering the definition is what makes it selectable. OpenHands-Neutral stays the default.</p>
     </header>
 
-    <section id="changed">
-      <h2><span class="num">1</span>Action labels leave the face of the button</h2>
-      <div class="callout">★ No Agent Server contract changes. <code>minimumAgentServer</code> stays put. The click handlers are the same functions; only the visible children of the button change. 38 files · +754 / −416.</div>
-      <p>The carrying example is <code>GitControlBarPullButton</code>. Before, the button painted an arrow and the word “Pull”. After, the arrow is the only visible child, and <code>aria-label</code> is <code>t(COMMON$PULL)</code>.</p>
-      <figure class="fig">
-        <svg viewBox="0 0 920 280" role="img" aria-labelledby="f1-t f1-d">
-          <title id="f1-t">Pull button before and after</title>
-          <desc id="f1-d">The visible Pull label moves into aria-label and a tooltip. The click still calls handlePullClick.</desc>
+    <section id="change">
+      <h2><span class="num">1</span>What changed</h2>
+      <div class="callout">★ Ember is a firelit umber dark theme, not a recolor of Neutral, DeepSea, Neo, Light+, Solarized Light, or Paper. Copper (<code>#E39A4A</code>) fills primary actions. Peach (<code>#FFC48A</code>) is the link and focus ring. Body text stays ivory on umber at about 13.8:1 in the running mock app.</div>
+      <p>Each neutral step keeps the luminance of the matching OpenHands-Neutral grey, so inherited status inks (danger, success, warning, Markdown alerts) keep the contrast they already have. The hue is brown. Code, diffs, and the terminal get their own palettes instead of borrowing <code>vscDarkPlus</code> or the shared dark ANSI set.</p>
+      <p>11 files in the implementation commit · +308 / −1. <a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/color-theme/definitions/ember.ts#L75-L81">ember.ts:75</a></p>
+      <div class="fig">
+        <svg viewBox="0 0 960 280" role="img" aria-labelledby="f1-t f1-d">
+          <title id="f1-t">Palette families before and after</title>
+          <desc id="f1-d">Six existing themes stay. Ember is a seventh dark umber palette with copper actions.</desc>
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 Z" fill="var(--subtle)"/></marker>
-            <marker id="arr-chg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-              <path d="M0,0 L10,5 L0,10 Z" fill="var(--warn)"/></marker>
-            <linearGradient id="subj" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="var(--accent)" stop-opacity=".10"/>
-              <stop offset="1" stop-color="var(--accent)" stop-opacity=".02"/>
-            </linearGradient>
-            <style>
-              .existing{fill:var(--code-bg);stroke:var(--subtle);stroke-width:1.4;stroke-dasharray:5 3}
-              .ex-title{font:700 13px var(--sans);fill:var(--muted)}
-              .ex-detail{font:11.5px var(--mono);fill:var(--subtle)}
-              .new{fill:url(#subj);stroke:var(--accent);stroke-width:2}
-              .new-title{font:800 13px var(--sans);fill:var(--accent)}
-              .detail{font:11.5px var(--mono);fill:var(--fg)}
-              .edge{stroke:var(--subtle);stroke-width:1.5;stroke-dasharray:5 3;fill:none}
-              .edge-chg{stroke:var(--warn);stroke-width:1.8;fill:none}
-              .lbl{font:600 10.5px var(--mono);fill:var(--accent)}
-              .gap{font:700 11.5px var(--mono);fill:var(--warn)}
-            </style>
           </defs>
-          <text class="ex-title" x="210" y="28">Before</text>
-          <rect class="existing" x="40" y="48" width="340" height="88" rx="8"/>
-          <text class="ex-title" x="210" y="82" text-anchor="middle">button · icon + “Pull”</text>
-          <text class="ex-detail" x="210" y="104" text-anchor="middle">git-control-bar-pull-button.tsx:57</text>
-          <rect class="existing" x="40" y="160" width="340" height="72" rx="8"/>
-          <text class="ex-title" x="210" y="190" text-anchor="middle">handlePullClick()</text>
-          <text class="ex-detail" x="210" y="210" text-anchor="middle">unchanged</text>
-          <path class="edge" d="M210,136 L210,160" marker-end="url(#arr)"/>
-
-          <text class="new-title" x="680" y="28">After</text>
-          <rect class="new" x="510" y="48" width="370" height="88" rx="8"/>
-          <text class="new-title" x="695" y="78" text-anchor="middle">button · arrow only</text>
-          <text class="detail" x="695" y="100" text-anchor="middle">aria-label = t(COMMON$PULL) · :45</text>
-          <rect class="new" x="510" y="160" width="370" height="72" rx="8"/>
-          <text class="new-title" x="695" y="190" text-anchor="middle">StyledTooltip(label)</text>
-          <text class="detail" x="695" y="210" text-anchor="middle">same string, not visible text</text>
-          <path class="edge-chg" d="M380,92 L510,92" marker-end="url(#arr-chg)"/>
-          <rect x="400" y="74" width="70" height="16" rx="5" fill="var(--elevated)" stroke="var(--rule)"/>
-          <text class="gap" x="435" y="86" text-anchor="middle">name moves</text>
+          <style>
+            .existing{fill:var(--code-bg);stroke:var(--subtle);stroke-width:1.4}
+            .ex-title{font:700 13px var(--sans);fill:var(--muted)}
+            .ex-detail{font:11.5px var(--mono);fill:var(--subtle)}
+            .new{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+            .new-title{font:800 13px var(--sans);fill:var(--accent)}
+            .detail{font:11.5px var(--mono);fill:var(--fg)}
+            .label{font:700 12px var(--sans);fill:var(--muted)}
+          </style>
+          <text class="label" x="24" y="28">Before · six keys</text>
+          <rect class="existing" x="24" y="44" width="200" height="56" rx="6"/>
+          <text class="ex-title" x="36" y="68">Neutral / Neo</text>
+          <text class="ex-detail" x="36" y="86">grey · white buttons</text>
+          <rect class="existing" x="240" y="44" width="200" height="56" rx="6"/>
+          <text class="ex-title" x="252" y="68">DeepSea</text>
+          <text class="ex-detail" x="252" y="86">blue-slate</text>
+          <rect class="existing" x="456" y="44" width="470" height="56" rx="6"/>
+          <text class="ex-title" x="468" y="68">Light+ · Solarized Light · Paper</text>
+          <text class="ex-detail" x="468" y="86">light · appearance stays light</text>
+          <text class="label" x="24" y="148">After · same six, plus Ember</text>
+          <rect class="existing" x="24" y="164" width="620" height="72" rx="6"/>
+          <text class="ex-title" x="36" y="192">COLOR_THEMES unchanged for the six</text>
+          <text class="ex-detail" x="36" y="212">DEFAULT_COLOR_THEME stays openhands-neutral</text>
+          <rect class="new" x="664" y="164" width="272" height="72" rx="6"/>
+          <text class="new-title" x="676" y="192">ember</text>
+          <text class="detail" x="676" y="212">dark umber · copper · peach focus</text>
         </svg>
-        <figcaption>Fig 1 · The word leaves the button face. The click path does not.</figcaption>
-      </figure>
-      <p class="callout note">ⓘ Dashed boxes are the old render. Solid boxes are the new render. The orange edge is the only behavioral move: the translated string is no longer a text node.</p>
+        <figcaption>The picker is generated from the registry, so the new key shows up without a second menu.</figcaption>
+      </div>
     </section>
 
-    <section id="contract">
-      <h2><span class="num">2</span>Same click, name moves to aria-label</h2>
-      <p>There is no new component API and no wire change. Each converted button keeps its <code>onClick</code>, <code>data-testid</code>, and disabled rules.</p>
+    <section id="api">
+      <h2><span class="num">2</span>Key before and after</h2>
+      <p>Additive. Stored keys that are not in the registry still fall back to OpenHands-Neutral. No Agent Server field, endpoint, or <code>minimumAgentServer</code> change.</p>
       <div class="ba">
         <div>
           <h3>Before</h3>
-          <pre><code>button
-  children: icon + t(label)
-  accessible name: visible text</code></pre>
-          <p><a class="src" href="https://github.com/OpenHands/OpenHands/blob/df87a640248c30febd6368fea53b5679bb3bc49f/src/components/features/chat/git-control-bar-pull-button.tsx#L53">git-control-bar-pull-button.tsx:53</a></p>
+          <pre><code>type ColorThemeKey =
+  | "openhands-deepsea"
+  | "openhands-neutral"
+  | "openhands-neo"
+  | "light-plus"
+  | "solarized-light"
+  | "paper";</code></pre>
+          <a class="src" href="https://github.com/asnowbear/OpenHands/blob/d5b60a704b2cecfd6d11065fe6c0acb13e452fc1/src/themes/color-theme/types.ts#L3-L9">types.ts:3 at d5b60a704</a>
         </div>
         <div>
           <h3>After</h3>
-          <pre><code>StyledTooltip content=t(label)
-  button aria-label=t(label)
-    children: icon only</code></pre>
-          <p><a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/features/chat/git-control-bar-pull-button.tsx#L45">git-control-bar-pull-button.tsx:45</a></p>
+          <pre><code>type ColorThemeKey =
+  | "openhands-deepsea"
+  | "openhands-neutral"
+  | "openhands-neo"
+  | "light-plus"
+  | "solarized-light"
+  | "paper"
+  | "ember";</code></pre>
+          <a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/color-theme/types.ts#L3-L10">types.ts:3 at f516c70ee</a>
         </div>
       </div>
-      <p>Compatibility verdict: additive presentation only. Local and Cloud, OpenHands and ACP, and standalone and embedded Canvas share these React components. No backend branch was added.</p>
+      <p><code>Record&lt;ColorThemeKey, …&gt;</code> forces a Prism palette, a Monaco theme name, and a 16-color ANSI palette. Omitting any of them fails typecheck.</p>
+    </section>
+
+    <section id="flow">
+      <h2><span class="num">3</span>How a selection applies</h2>
+      <div class="fig">
+        <svg viewBox="0 0 960 220" role="img" aria-labelledby="f2-t f2-d">
+          <title id="f2-t">Theme selection path</title>
+          <desc id="f2-d">ThemeInput calls setColorTheme, which writes localStorage and injects the Ember CSS.</desc>
+          <defs>
+            <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 Z" fill="var(--subtle)"/></marker>
+          </defs>
+          <style>
+            .existing{fill:var(--code-bg);stroke:var(--subtle);stroke-width:1.4}
+            .new{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+            .ex-title{font:700 13px var(--sans);fill:var(--muted)}
+            .new-title{font:800 13px var(--sans);fill:var(--accent)}
+            .detail{font:11.5px var(--mono);fill:var(--fg)}
+            .line{stroke:var(--subtle);stroke-width:1.4;fill:none}
+          </style>
+          <rect class="existing" x="24" y="70" width="210" height="78" rx="6"/>
+          <text class="ex-title" x="36" y="98">ThemeInput</text>
+          <text class="detail" x="36" y="120">theme-input.tsx:26</text>
+          <path class="line" d="M234 109 H300" marker-end="url(#arr2)"/>
+          <rect class="existing" x="308" y="70" width="210" height="78" rx="6"/>
+          <text class="ex-title" x="320" y="98">setColorTheme</text>
+          <text class="detail" x="320" y="120">runtime.ts:41</text>
+          <path class="line" d="M518 109 H584" marker-end="url(#arr2)"/>
+          <rect class="new" x="592" y="40" width="344" height="140" rx="6"/>
+          <text class="new-title" x="608" y="72">COLOR_THEMES.ember</text>
+          <text class="detail" x="608" y="96">scale + HeroUI + copper tokens</text>
+          <text class="detail" x="608" y="116">localStorage openhands-color-theme</text>
+          <text class="detail" x="608" y="136">#oh-color-theme-override</text>
+          <text class="detail" x="608" y="156">data-color-scheme=dark</text>
+        </svg>
+        <figcaption>The dropdown was already driven by <code>AVAILABLE_COLOR_THEMES</code>. Ember is a new entry, not a new control.</figcaption>
+      </div>
+      <div class="callout note">ⓘ Theme names stay English proper nouns, the same way Paper, Light+, and OpenHands-Neutral do. The field label already uses <code>SETTINGS$COLOR_THEME</code>. No new translation key.</div>
     </section>
 
     <section id="files">
-      <h2><span class="num">3</span>Where to look</h2>
+      <h2><span class="num">4</span>Files</h2>
       <table>
-        <thead><tr><th>Area</th><th></th><th>What moved</th></tr></thead>
+        <thead><tr><th>File</th><th></th><th>Role</th></tr></thead>
         <tbody>
-          <tr><td>Git bar pull / push / PR</td><td><span class="tag">changed</span></td><td>Drop the word; keep the existing arrow or PR mark</td></tr>
-          <tr><td>Home open-workspace, plugins, git actions, VS Code</td><td><span class="tag">changed</span></td><td>Icon already present; label becomes the name</td></tr>
-          <tr><td>Add skill / plugin / secret / MCP / automation, Git sync nav, sync now</td><td><span class="tag">changed</span></td><td>Plus or refresh icon</td></tr>
-          <tr><td>Retry, dismiss, edit, reopen, stop/resume goal, compact, got it, build, back</td><td><span class="tag">changed</span></td><td>New icon from lucide or the existing pause/play/arrow set</td></tr>
-          <tr><td>Component tests</td><td><span class="tag">changed</span></td><td>Assert accessible name and that the click still fires</td></tr>
-          <tr><td><code>gitControlBarActionLabelClassName</code></td><td><span class="tag">removed</span></td><td>Only the three git action labels used it</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/color-theme/definitions/ember.ts#L1">definitions/ember.ts</a></td><td>🟢</td><td>Umber scale, HeroUI channels, copper and peach tokens. Appearance <code>dark</code>.</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/color-theme/types.ts#L10">types.ts</a> · <a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/color-theme/definitions/index.ts#L23">index.ts</a></td><td>✏️</td><td><code>"ember"</code> on <code>ColorThemeKey</code> and in <code>COLOR_THEMES</code>.</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/syntax-highlighter-themes.ts#L104">syntax-highlighter-themes.ts</a></td><td>✏️</td><td>Prism palette on <code>#2C1D11</code>. Not <code>vscDarkPlus</code>.</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/components/features/diff-viewer/file-diff-viewer.tsx#L71">file-diff-viewer.tsx:174</a></td><td>✏️</td><td>Monaco theme <code>openhands-diff-ember</code>.</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/themes/terminal-themes.ts#L113">terminal-themes.ts</a></td><td>✏️</td><td>All 16 ANSI slots, readable on the umber ground.</td></tr>
+          <tr><td><a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/__tests__/themes/ember-theme.test.tsx">ember-theme.test.tsx</a></td><td>🟢</td><td>Picker lists Ember and <code>setColorTheme</code> persists it.</td></tr>
         </tbody>
       </table>
-    </section>
-
-    <section id="git">
-      <h2><span class="num">4</span>Git pull, push, and PR stay the same prompts</h2>
-      <p><code>handlePullClick</code> still tracks and calls <code>onSuggestionsClick(getGitPullPrompt())</code>. Push and create-PR do the same with their existing prompt helpers. The fixed text widths (<code>w-19</code>, <code>w-31.5</code>) become <code>size-7</code> so the control matches the other 28px header icons.</p>
-      <p>Before: <a class="src" href="https://github.com/OpenHands/OpenHands/blob/df87a640248c30febd6368fea53b5679bb3bc49f/src/components/features/chat/git-control-bar-pull-button.tsx#L57">visible <code>t(COMMON$PULL)</code> at line 57</a>. After: <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/features/chat/git-control-bar-pull-button.tsx#L36">label at line 36</a>, applied as <code>aria-label</code> at line 45. Push and PR follow the same shape in their sibling files.</p>
-    </section>
-
-    <section id="home">
-      <h2><span class="num">5</span>Home launcher and page adds</h2>
-      <p><code>OpenLauncherButton</code> used to render the folder or repo mark plus “Open workspace” / “Open repository”. The words are gone. A disabled reason still wins the tooltip, which is what the home launcher test hovers.</p>
-      <p>Before: <a class="src" href="https://github.com/OpenHands/OpenHands/blob/df87a640248c30febd6368fea53b5679bb3bc49f/src/components/features/home/open-launcher-button.tsx#L57">label span at line 57</a>. After: <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/features/home/open-launcher-button.tsx#L40">aria-label at line 40</a>.</p>
-      <p>Page-header adds (MCP, skills, plugins, secrets, automations) and the automations “Git sync” navigation button use <code>Plus</code> or <code>RefreshCw</code> inside <code>BrandButton</code> with <code>ariaLabel</code>. The automations add control keeps the chevron because it opens a menu (<code>aria-haspopup="menu"</code>).</p>
-      <p><a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/routes/automations-list.tsx#L829">automations-list.tsx:829</a> · <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/routes/skills-settings.tsx#L191">skills-settings.tsx:191</a></p>
-    </section>
-
-    <section id="chat">
-      <h2><span class="num">6</span>Chat recovery and Build</h2>
-      <table>
-        <thead><tr><th>Control</th><th>Icon</th><th>Name</th></tr></thead>
-        <tbody>
-          <tr><td>Retry (message, banner, reconnect, startup)</td><td><code>RotateCcw</code></td><td><code>CHAT_INTERFACE$MESSAGE_RETRY</code></td></tr>
-          <tr><td>Dismiss a failed send</td><td><code>X</code></td><td><code>CHAT_INTERFACE$MESSAGE_DISMISS</code></td></tr>
-          <tr><td>Update credentials</td><td><code>KeyRound</code></td><td><code>ERROR$ACP_UPDATE_CREDENTIALS</code></td></tr>
-          <tr><td>Edit a failed launch</td><td><code>Pencil</code></td><td>existing edit label or <code>BUTTON$EDIT</code></td></tr>
-          <tr><td>Reopen a resolved conversation</td><td><code>FolderOpen</code></td><td><code>CHAT_INTERFACE$RESOLVED_REOPEN</code></td></tr>
-          <tr><td>Stop / resume a goal</td><td>existing pause / play icons</td><td><code>GOAL$STOP</code> / <code>GOAL$RESUME</code></td></tr>
-          <tr><td>Compact context</td><td><code>Minimize</code></td><td><code>CONVERSATION$COMPACT_CONTEXT</code></td></tr>
-          <tr><td>Got it</td><td>existing check</td><td><code>CHAT_INTERFACE$BTW_GOT_IT</code></td></tr>
-          <tr><td>Build the plan</td><td><code>Hammer</code></td><td><code>COMMON$BUILD</code>; tooltip still shows ⌘↩</td></tr>
-          <tr><td>Back button (not the link)</td><td><code>ArrowLeft</code></td><td>the string child, usually <code>BUTTON$BACK</code></td></tr>
-        </tbody>
-      </table>
-      <p>Build: <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/features/chat/plan-preview.tsx#L130">plan-preview.tsx:130</a>. Retry: <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/features/chat/chat-message.tsx#L285">chat-message.tsx:285</a>. Back, button variant only: <a class="src" href="https://github.com/asnowbear/OpenHands/blob/ad709c4acdeae65345beea66bd41eb74a6f778fa/src/components/shared/buttons/back-nav-button.tsx#L54">back-nav-button.tsx:54</a>. The <code>to</code> link variant still renders <code>BackNavButtonContent</code> with its text, including the 404 “Home” link.</p>
-    </section>
-
-    <section id="kept">
-      <h2><span class="num">7</span>Text that stays</h2>
-      <div class="callout warn">⚠ These were left as words on purpose. A later pass should not “finish” them without a new decision.</div>
-      <ul>
-        <li><strong>Confirm / Cancel / Delete dialogs</strong>, including agent Continue and Cancel. The words are the decision.</li>
-        <li><strong>Form submits</strong> such as Save, Rename, Create a plan, Start conversation, and Save and sync. The sentence is the explanation of that form.</li>
-        <li><strong>Links</strong>, including <code>BackNavButton</code> with <code>to</code> and sidebar entries such as New Chat.</li>
-        <li><strong>Text that is the content</strong>: repository and branch names, Code / Plan / Automate, the model and profile names, workspace mode, menu rows, Filters, and Group by status.</li>
-        <li><strong>“Start new conversation with this skill”</strong> and <strong>“Read more” / “View more”</strong>. No single icon says that sentence.</li>
-        <li><strong>Full-width “Check for updates”</strong>. Making it icon-only would restyle the update card, and the sentence is the action.</li>
-      </ul>
+      <p>ThemeInput itself is unchanged. It maps <code>AVAILABLE_COLOR_THEMES</code> at <a class="src" href="https://github.com/asnowbear/OpenHands/blob/f516c70ee839eb3a10735c50baf5e4af5652fef1/src/components/features/settings/app-settings/theme-input.tsx#L26-L29">theme-input.tsx:26</a>.</p>
     </section>
 
     <section id="risk">
-      <h2><span class="num">8</span>Compatibility and risk</h2>
-      <p>Glanceability is the risk. A folder and a puzzle on the home composer are smaller than “Open workspace” and “Plugins”. Hover and screen readers still get the old strings. Tests that looked up those buttons by visible text now look them up by accessible name, and the click assertions still call the same handlers.</p>
-      <p>Verified in the mock Canvas (<code>npm run dev:mock</code> on <code>http://127.0.0.1:5173</code>), not against a live Agent Server or LLM. Unit tests covering the converted buttons passed. No settings shape, conversation payload, or server endpoint changed.</p>
+      <h2><span class="num">5</span>Compatibility</h2>
+      <div class="callout warn">⚠ Local and Cloud, OpenHands and ACP, and standalone and embedded Canvas share this picker and <code>setColorTheme</code>. The palette is presentation only. It does not change conversation payloads, prompts, or the Agent Server.</div>
+      <p>Embedded roots still wait until a palette is applied. A stored <code>ember</code> key is valid for the head bootstrap because the bootstrap script is generated from <code>COLOR_THEMES</code>. Switching away replaces the override stylesheet, so Ember tokens do not stick.</p>
+      <p>Contrast locked by the existing all-theme suite plus Ember-specific Prism and ANSI checks: body text 4.5:1, focus ring 3:1 on base, modal, raised, and hover surfaces.</p>
     </section>
   </main>
 </div>
